@@ -103,7 +103,8 @@ static gboolean g_buffered_output_stream_close_finish (GOutputStream        *str
                                                        GAsyncResult         *result,
                                                        GError              **error);
 
-static void     g_buffered_output_stream_seekable_iface_init (GSeekableIface  *iface);
+static void     g_buffered_output_stream_seekable_iface_init (GSeekableIface  *iface,
+                                                              gpointer         iface_data);
 static goffset  g_buffered_output_stream_tell                (GSeekable       *seekable);
 static gboolean g_buffered_output_stream_can_seek            (GSeekable       *seekable);
 static gboolean g_buffered_output_stream_seek                (GSeekable       *seekable,
@@ -350,7 +351,8 @@ g_buffered_output_stream_init (GBufferedOutputStream *stream)
 }
 
 static void
-g_buffered_output_stream_seekable_iface_init (GSeekableIface *iface)
+g_buffered_output_stream_seekable_iface_init (GSeekableIface *iface,
+                                              gpointer        iface_data)
 {
   iface->tell         = g_buffered_output_stream_tell;
   iface->can_seek     = g_buffered_output_stream_can_seek;

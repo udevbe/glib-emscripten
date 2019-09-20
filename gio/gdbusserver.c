@@ -158,7 +158,8 @@ enum
 
 static guint _signals[LAST_SIGNAL] = {0};
 
-static void initable_iface_init       (GInitableIface *initable_iface);
+static void initable_iface_init       (GInitableIface *initable_iface,
+                                       gpointer        iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (GDBusServer, g_dbus_server, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, initable_iface_init))
@@ -1163,7 +1164,8 @@ initable_init (GInitable     *initable,
 
 
 static void
-initable_iface_init (GInitableIface *initable_iface)
+initable_iface_init (GInitableIface *initable_iface,
+                     gpointer        iface_data)
 {
   initable_iface->init = initable_init;
 }

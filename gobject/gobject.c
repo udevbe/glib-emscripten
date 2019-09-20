@@ -170,7 +170,8 @@ G_STATIC_ASSERT(G_STRUCT_OFFSET(GObject, qdata) == G_STRUCT_OFFSET(GObjectReal, 
 /* --- prototypes --- */
 static void	g_object_base_class_init		(GObjectClass	*class);
 static void	g_object_base_class_finalize		(GObjectClass	*class);
-static void	g_object_do_class_init			(GObjectClass	*class);
+static void	g_object_do_class_init			(GObjectClass	*class,
+							 gpointer	 class_data);
 static void	g_object_init				(GObject	*object,
 							 GObjectClass	*class);
 static GObject*	g_object_constructor			(GType                  type,
@@ -973,7 +974,8 @@ g_object_base_class_finalize (GObjectClass *class)
 }
 
 static void
-g_object_do_class_init (GObjectClass *class)
+g_object_do_class_init (GObjectClass *class,
+                        gpointer      class_data)
 {
   quark_closure_array = g_quark_from_static_string ("GObject-closure-array");
   quark_weak_notifies = g_quark_from_static_string ("GObject-weak-notifies");

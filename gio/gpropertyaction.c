@@ -98,7 +98,8 @@ struct _GPropertyAction
 
 typedef GObjectClass GPropertyActionClass;
 
-static void g_property_action_iface_init (GActionInterface *iface);
+static void g_property_action_iface_init (GActionInterface *iface,
+                                          gpointer          iface_data);
 G_DEFINE_TYPE_WITH_CODE (GPropertyAction, g_property_action, G_TYPE_OBJECT,
   G_IMPLEMENT_INTERFACE (G_TYPE_ACTION, g_property_action_iface_init))
 
@@ -437,7 +438,8 @@ g_property_action_init (GPropertyAction *property)
 }
 
 void
-g_property_action_iface_init (GActionInterface *iface)
+g_property_action_iface_init (GActionInterface *iface,
+                              gpointer          iface_data)
 {
   iface->get_name = g_property_action_get_name;
   iface->get_parameter_type = g_property_action_get_parameter_type;

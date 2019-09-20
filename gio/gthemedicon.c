@@ -44,7 +44,8 @@
  * themes that inherit other themes.
  **/
 
-static void g_themed_icon_icon_iface_init (GIconIface *iface);
+static void g_themed_icon_icon_iface_init (GIconIface *iface,
+                                           gpointer    iface_data);
 
 struct _GThemedIcon
 {
@@ -613,7 +614,8 @@ g_themed_icon_serialize (GIcon *icon)
 }
 
 static void
-g_themed_icon_icon_iface_init (GIconIface *iface)
+g_themed_icon_icon_iface_init (GIconIface *iface,
+                               gpointer    iface_data)
 {
   iface->hash = g_themed_icon_hash;
   iface->equal = g_themed_icon_equal;

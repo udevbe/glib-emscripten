@@ -46,9 +46,11 @@ struct _GSocketOutputStreamPrivate
   gsize count;
 };
 
-static void g_socket_output_stream_pollable_iface_init (GPollableOutputStreamInterface *iface);
+static void g_socket_output_stream_pollable_iface_init (GPollableOutputStreamInterface *iface,
+                                                        gpointer                        iface_data);
 #if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
-static void g_socket_output_stream_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface);
+static void g_socket_output_stream_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface,
+                                                                     gpointer                   iface_data);
 #endif
 
 #define g_socket_output_stream_get_type _g_socket_output_stream_get_type
@@ -254,14 +256,16 @@ g_socket_output_stream_class_init (GSocketOutputStreamClass *klass)
 
 #if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
 static void
-g_socket_output_stream_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface)
+g_socket_output_stream_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface,
+                                                         gpointer                   iface_data)
 {
   iface->get_fd = g_socket_output_stream_get_fd;
 }
 #endif
 
 static void
-g_socket_output_stream_pollable_iface_init (GPollableOutputStreamInterface *iface)
+g_socket_output_stream_pollable_iface_init (GPollableOutputStreamInterface *iface,
+                                            gpointer                        iface_data)
 {
   iface->is_writable = g_socket_output_stream_pollable_is_writable;
   iface->create_source = g_socket_output_stream_pollable_create_source;

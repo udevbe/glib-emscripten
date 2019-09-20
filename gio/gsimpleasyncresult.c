@@ -205,7 +205,8 @@
 
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
-static void g_simple_async_result_async_result_iface_init (GAsyncResultIface       *iface);
+static void g_simple_async_result_async_result_iface_init (GAsyncResultIface       *iface,
+                                                           gpointer                 iface_data);
 
 struct _GSimpleAsyncResult
 {
@@ -464,7 +465,8 @@ g_simple_async_result_is_tagged (GAsyncResult *res,
 }
 
 static void
-g_simple_async_result_async_result_iface_init (GAsyncResultIface *iface)
+g_simple_async_result_async_result_iface_init (GAsyncResultIface *iface,
+                                               gpointer           iface_data)
 {
   iface->get_user_data = g_simple_async_result_get_user_data;
   iface->get_source_object = g_simple_async_result_get_source_object;

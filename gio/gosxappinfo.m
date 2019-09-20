@@ -41,7 +41,8 @@
  * Note that `<gio/gosxappinfo.h>` is unique to OSX.
  */
 
-static void        g_osx_app_info_iface_init (GAppInfoIface *iface);
+static void        g_osx_app_info_iface_init (GAppInfoIface *iface,
+                                              gpointer       iface_data);
 static const char *g_osx_app_info_get_id     (GAppInfo      *appinfo);
 
 struct _GOsxAppInfo
@@ -550,7 +551,8 @@ g_osx_app_info_can_delete (GAppInfo *appinfo)
 }
 
 static void
-g_osx_app_info_iface_init (GAppInfoIface *iface)
+g_osx_app_info_iface_init (GAppInfoIface *iface,
+                           gpointer       iface_data)
 {
   iface->dup = g_osx_app_info_dup;
   iface->equal = g_osx_app_info_equal;

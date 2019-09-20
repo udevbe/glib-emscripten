@@ -623,7 +623,8 @@ typedef enum
   PROP_COMPLETED = 1,
 } GTaskProperty;
 
-static void g_task_async_result_iface_init (GAsyncResultIface *iface);
+static void g_task_async_result_iface_init (GAsyncResultIface *iface,
+                                            gpointer           iface_data);
 static void g_task_thread_pool_init (void);
 
 G_DEFINE_TYPE_WITH_CODE (GTask, g_task, G_TYPE_OBJECT,
@@ -2503,7 +2504,8 @@ g_task_is_tagged (GAsyncResult *res,
 }
 
 static void
-g_task_async_result_iface_init (GAsyncResultIface *iface)
+g_task_async_result_iface_init (GAsyncResultIface *iface,
+                                gpointer           iface_data)
 {
   iface->get_user_data = g_task_get_user_data;
   iface->get_source_object = g_task_ref_source_object;

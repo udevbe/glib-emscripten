@@ -105,7 +105,8 @@ static gssize   g_converter_output_stream_write_nonblocking (GPollableOutputStre
 static GSource *g_converter_output_stream_create_source     (GPollableOutputStream *stream,
 							     GCancellable          *cancellable);
 
-static void g_converter_output_stream_pollable_iface_init (GPollableOutputStreamInterface *iface);
+static void g_converter_output_stream_pollable_iface_init (GPollableOutputStreamInterface *iface,
+                                                           gpointer                        iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (GConverterOutputStream,
 			 g_converter_output_stream,
@@ -145,7 +146,8 @@ g_converter_output_stream_class_init (GConverterOutputStreamClass *klass)
 }
 
 static void
-g_converter_output_stream_pollable_iface_init (GPollableOutputStreamInterface *iface)
+g_converter_output_stream_pollable_iface_init (GPollableOutputStreamInterface *iface,
+                                               gpointer                        iface_data)
 {
   iface->can_poll = g_converter_output_stream_can_poll;
   iface->is_writable = g_converter_output_stream_is_writable;

@@ -61,7 +61,8 @@ struct _GUnixVolume {
   GIcon *symbolic_icon;
 };
 
-static void g_unix_volume_volume_iface_init (GVolumeIface *iface);
+static void g_unix_volume_volume_iface_init (GVolumeIface *iface,
+                                             gpointer      iface_data);
 
 #define g_unix_volume_get_type _g_unix_volume_get_type
 G_DEFINE_TYPE_WITH_CODE (GUnixVolume, g_unix_volume, G_TYPE_OBJECT,
@@ -421,7 +422,8 @@ g_unix_volume_enumerate_identifiers (GVolume *volume)
 }
 
 static void
-g_unix_volume_volume_iface_init (GVolumeIface *iface)
+g_unix_volume_volume_iface_init (GVolumeIface *iface,
+                                 gpointer      iface_data)
 {
   iface->get_name = g_unix_volume_get_name;
   iface->get_icon = g_unix_volume_get_icon;

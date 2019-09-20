@@ -42,8 +42,10 @@
 #include <linux/rtnetlink.h>
 
 static GInitableIface *initable_parent_iface;
-static void g_network_monitor_netlink_iface_init (GNetworkMonitorInterface *iface);
-static void g_network_monitor_netlink_initable_iface_init (GInitableIface *iface);
+static void g_network_monitor_netlink_iface_init (GNetworkMonitorInterface *iface,
+                                                  gpointer                  iface_data);
+static void g_network_monitor_netlink_initable_iface_init (GInitableIface *iface,
+                                                           gpointer        iface_data);
 
 struct _GNetworkMonitorNetlinkPrivate
 {
@@ -502,12 +504,14 @@ g_network_monitor_netlink_class_init (GNetworkMonitorNetlinkClass *nl_class)
 }
 
 static void
-g_network_monitor_netlink_iface_init (GNetworkMonitorInterface *monitor_iface)
+g_network_monitor_netlink_iface_init (GNetworkMonitorInterface *monitor_iface,
+                                      gpointer                  iface_data)
 {
 }
 
 static void
-g_network_monitor_netlink_initable_iface_init (GInitableIface *iface)
+g_network_monitor_netlink_initable_iface_init (GInitableIface *iface,
+                                               gpointer        iface_data)
 {
   initable_parent_iface = g_type_interface_peek_parent (iface);
 

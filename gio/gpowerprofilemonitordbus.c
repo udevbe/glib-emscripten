@@ -34,8 +34,10 @@
 
 #define G_POWER_PROFILE_MONITOR_DBUS_GET_INITABLE_IFACE(o) (G_TYPE_INSTANCE_GET_INTERFACE ((o), G_TYPE_INITABLE, GInitable))
 
-static void g_power_profile_monitor_dbus_iface_init (GPowerProfileMonitorInterface *iface);
-static void g_power_profile_monitor_dbus_initable_iface_init (GInitableIface *iface);
+static void g_power_profile_monitor_dbus_iface_init (GPowerProfileMonitorInterface *iface,
+                                                     gpointer                       iface_data);
+static void g_power_profile_monitor_dbus_initable_iface_init (GInitableIface *iface,
+                                                              gpointer        iface_data);
 
 struct _GPowerProfileMonitorDBus
 {
@@ -233,12 +235,14 @@ g_power_profile_monitor_dbus_class_init (GPowerProfileMonitorDBusClass *nl_class
 }
 
 static void
-g_power_profile_monitor_dbus_iface_init (GPowerProfileMonitorInterface *monitor_iface)
+g_power_profile_monitor_dbus_iface_init (GPowerProfileMonitorInterface *monitor_iface,
+                                         gpointer                       iface_data)
 {
 }
 
 static void
-g_power_profile_monitor_dbus_initable_iface_init (GInitableIface *iface)
+g_power_profile_monitor_dbus_initable_iface_init (GInitableIface *iface,
+                                                  gpointer        iface_data)
 {
   iface->init = g_power_profile_monitor_dbus_initable_init;
 }

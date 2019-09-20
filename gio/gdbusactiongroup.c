@@ -122,8 +122,10 @@ action_info_new_from_iter (GVariantIter *iter)
   return info;
 }
 
-static void g_dbus_action_group_remote_iface_init (GRemoteActionGroupInterface *iface);
-static void g_dbus_action_group_iface_init        (GActionGroupInterface       *iface);
+static void g_dbus_action_group_remote_iface_init (GRemoteActionGroupInterface *iface,
+                                                   gpointer                     iface_data);
+static void g_dbus_action_group_iface_init        (GActionGroupInterface       *iface,
+                                                   gpointer                     iface_data);
 G_DEFINE_TYPE_WITH_CODE (GDBusActionGroup, g_dbus_action_group, G_TYPE_OBJECT,
   G_IMPLEMENT_INTERFACE (G_TYPE_ACTION_GROUP, g_dbus_action_group_iface_init)
   G_IMPLEMENT_INTERFACE (G_TYPE_REMOTE_ACTION_GROUP, g_dbus_action_group_remote_iface_init))
@@ -450,14 +452,16 @@ g_dbus_action_group_class_init (GDBusActionGroupClass *class)
 }
 
 static void
-g_dbus_action_group_remote_iface_init (GRemoteActionGroupInterface *iface)
+g_dbus_action_group_remote_iface_init (GRemoteActionGroupInterface *iface,
+                                       gpointer                     iface_data)
 {
   iface->activate_action_full = g_dbus_action_group_activate_action_full;
   iface->change_action_state_full = g_dbus_action_group_change_action_state_full;
 }
 
 static void
-g_dbus_action_group_iface_init (GActionGroupInterface *iface)
+g_dbus_action_group_iface_init (GActionGroupInterface *iface,
+                                gpointer               iface_data)
 {
   iface->list_actions = g_dbus_action_group_list_actions;
   iface->query_action = g_dbus_action_group_query_action;

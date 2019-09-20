@@ -90,8 +90,10 @@ enum
 static guint g_dbus_daemon_signals[NR_SIGNALS];
 
 
-static void initable_iface_init      (GInitableIface         *initable_iface);
-static void g_dbus_daemon_iface_init (_GFreedesktopDBusIface *iface);
+static void initable_iface_init      (GInitableIface         *initable_iface,
+                                      gpointer                iface_data);
+static void g_dbus_daemon_iface_init (_GFreedesktopDBusIface *iface,
+                                      gpointer                iface_data);
 
 #define g_dbus_daemon_get_type _g_dbus_daemon_get_type
 G_DEFINE_TYPE_WITH_CODE (GDBusDaemon, g_dbus_daemon, _G_TYPE_FREEDESKTOP_DBUS_SKELETON,
@@ -1700,7 +1702,8 @@ g_dbus_daemon_class_init (GDBusDaemonClass *klass)
 }
 
 static void
-g_dbus_daemon_iface_init (_GFreedesktopDBusIface *iface)
+g_dbus_daemon_iface_init (_GFreedesktopDBusIface *iface,
+                          gpointer                iface_data)
 {
   iface->handle_add_match = handle_add_match;
   iface->handle_get_connection_selinux_security_context = handle_get_connection_selinux_security_context;
@@ -1722,7 +1725,8 @@ g_dbus_daemon_iface_init (_GFreedesktopDBusIface *iface)
 }
 
 static void
-initable_iface_init (GInitableIface *initable_iface)
+initable_iface_init (GInitableIface *initable_iface,
+                     gpointer        iface_data)
 {
   initable_iface->init = initable_init;
 }
