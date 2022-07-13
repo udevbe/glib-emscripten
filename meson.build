@@ -2170,46 +2170,6 @@ else
   libiconv = dependency('iconv')
 endif
 
-pcre2_req = '>=10.32'
-
-# Pick up pcre from the system, or if "--force-fallback-for libpcre2-8" was specified
-pcre2 = dependency('libpcre2-8', version: pcre2_req, required: false, default_options: ['default_library=static'])
-if not pcre2.found()
-  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl'
-  # MSVC: Search for the PCRE2 library by the configuration, which corresponds
-  # to the output of CMake builds of PCRE2.  Note that debugoptimized
-  # is really a Release build with .PDB files.
-    if vs_crt == 'debug'
-      pcre2 = cc.find_library('pcre2d-8', required : false)
-    else
-      pcre2 = cc.find_library('pcre2-8', required : false)
-    endif
-  endif
-endif
-
-# Try again with the fallback
-if not pcre2.found()
-  pcre2 = dependency('libpcre2-8', version: pcre2_req, allow_fallback: true, default_options: ['default_library=static'])
-  assert(pcre2.type_name() == 'internal')
-  # static flags are automatically enabled by the subproject if it's built
-  # with default_library=static
-  use_pcre2_static_flag = false
-elif host_system == 'windows' and pcre2.type_name() != 'internal'
-  pcre2_static = cc.links('''#define PCRE2_STATIC
-                             #define PCRE2_CODE_UNIT_WIDTH 8
-                             #include <pcre2.h>
-                             int main() {
-                               void *p = NULL;
-                               pcre2_code_free(p);
-                               return 0;
-                             }''',
-                         dependencies: pcre2,
-                         name : 'Windows system PCRE2 is a static build')
-  use_pcre2_static_flag = pcre2_static
-else
-  use_pcre2_static_flag = false
-endif
-
 # Import the gvdb sources as a subproject to avoid having the copylib in-tree
 subproject('gvdb')
 gvdb_dep = dependency('gvdb')
