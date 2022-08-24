@@ -48,7 +48,7 @@
 #define G_MAIN_POLL_DEBUG
 #endif
 
-#ifdef G_OS_UNIX
+#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
 #include "glib-unix.h"
 #include <pthread.h>
 #ifdef HAVE_EVENTFD
@@ -250,9 +250,9 @@ struct _GChildWatchSource
   /* @poll is always used on Windows.
    * On Unix, poll.fd will be negative if PIDFD is unavailable. */
   GPollFD     poll;
-#ifndef G_OS_WIN32
+#if !defined(G_OS_WIN32) && !defined(G_PLATFORM_WASM)
   gboolean child_maybe_exited; /* (atomic) */
-#endif /* G_OS_WIN32 */
+#endif /* !G_OS_WIN32 && !G_PLATFORM_WASM  */
 };
 
 struct _GUnixSignalWatchSource
@@ -359,11 +359,11 @@ static gboolean g_child_watch_dispatch (GSource     *source,
 					gpointer     user_data);
 static void     g_child_watch_finalize (GSource     *source);
 
-#ifndef G_OS_WIN32
+#if !defined(G_OS_WIN32) && !defined(G_PLATFORM_WASM)
 static void unref_unix_signal_handler_unlocked (int signum);
 #endif
 
-#ifdef G_OS_UNIX
+#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
 static void g_unix_signal_handler (int signum);
 static gboolean g_unix_signal_watch_prepare  (GSource     *source,
 					      gint        *timeout);
@@ -384,7 +384,7 @@ static void block_source (GSource *source);
 
 static GMainContext *glib_worker_context;
 
-#ifndef G_OS_WIN32
+#if !defined(G_OS_WIN32) && !defined(G_PLATFORM_WASM)
 
 
 /* UNIX signals work by marking one of these variables then waking the
@@ -425,7 +425,7 @@ GSourceFuncs g_unix_signal_funcs =
   g_unix_signal_watch_finalize,
   NULL, NULL
 };
-#endif /* !G_OS_WIN32 */
+#endif /* !G_OS_WIN32 && !G_PLATFORM_WASM */
 G_LOCK_DEFINE_STATIC (main_context_list);
 static GSList *main_context_list = NULL;
 
@@ -2595,7 +2595,7 @@ g_clear_handle_id (guint            *tag_ptr,
     }
 }
 
-#ifdef G_OS_UNIX
+#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
 /**
  * g_source_add_unix_fd:
  * @source: a #GSource
@@ -2777,7 +2777,7 @@ g_source_query_unix_fd (GSource  *source,
 
   return poll_fd->revents;
 }
-#endif /* G_OS_UNIX */
+#endif /* G_OS_UNIX && !G_PLATFORM_WASM */
 
 /**
  * g_get_current_time:
@@ -5372,9 +5372,9 @@ static gboolean
 g_child_watch_prepare (GSource *source,
 		       gint    *timeout)
 {
-#ifdef G_OS_WIN32
+#if defined(G_OS_WIN32) || defined(G_PLATFORM_WASM)
   return FALSE;
-#else  /* G_OS_WIN32 */
+#else  /* !G_OS_WIN32 && !G_PLATFORM_WASM */
   {
     GChildWatchSource *child_watch_source;
 
@@ -5385,7 +5385,7 @@ g_child_watch_prepare (GSource *source,
 
     return g_atomic_int_get (&child_watch_source->child_maybe_exited);
   }
-#endif /* G_OS_WIN32 */
+#endif /* !G_OS_WIN32 && !G_PLATFORM_WASM */
 }
 
 static gboolean
@@ -5396,9 +5396,9 @@ g_child_watch_check (GSource *source)
 
   child_watch_source = (GChildWatchSource *) source;
 
-#ifdef G_OS_WIN32
+#if defined(G_OS_WIN32) || defined(G_PLATFORM_WASM)
   child_exited = !!(child_watch_source->poll.revents & G_IO_IN);
-#else /* G_OS_WIN32 */
+#else /* !G_OS_WIN32 && !G_PLATFORM_WASM */
 #ifdef HAVE_PIDFD
   if (child_watch_source->poll.fd >= 0)
     {
@@ -5407,7 +5407,7 @@ g_child_watch_check (GSource *source)
     }
 #endif /* HAVE_PIDFD */
   child_exited = g_atomic_int_get (&child_watch_source->child_maybe_exited);
-#endif /* G_OS_WIN32 */
+#endif /* !G_OS_WIN32 && !G_PLATFORM_WASM */
 
   return child_exited;
 }
@@ -5415,7 +5415,7 @@ g_child_watch_check (GSource *source)
 static void
 g_child_watch_finalize (GSource *source)
 {
-#ifndef G_OS_WIN32
+#if !defined(G_OS_WIN32) && !defined(G_PLATFORM_WASM)
   GChildWatchSource *child_watch_source = (GChildWatchSource *) source;
 
   if (child_watch_source->poll.fd >= 0)
@@ -5428,10 +5428,10 @@ g_child_watch_finalize (GSource *source)
   unix_child_watches = g_slist_remove (unix_child_watches, source);
   unref_unix_signal_handler_unlocked (SIGCHLD);
   G_UNLOCK (unix_signal_lock);
-#endif /* G_OS_WIN32 */
+#endif /* !G_OS_WIN32 && !G_PLATFORM_WASM */
 }
 
-#ifndef G_OS_WIN32
+#if !defined(G_OS_WIN32) && !defined(G_PLATFORM_WASM)
 
 static void
 wake_source (GSource *source)
@@ -5761,7 +5761,9 @@ g_child_watch_dispatch (GSource    *source,
     else
       wait_status = child_status;
   }
-#else /* G_OS_WIN32 */
+#elif defined(G_PLATFORM_WASM) /* !G_OS_WIN32 */
+  wait_status = -1;
+#else /* !G_OS_WIN32 && !G_PLATFORM_WASM */
   {
     gboolean child_exited = FALSE;
 
@@ -5845,7 +5847,7 @@ g_child_watch_dispatch (GSource    *source,
           }
       }
   }
-#endif /* G_OS_WIN32 */
+#endif /* !G_OS_WIN32 && !G_PLATFORM_WASM */
 
   if (!callback)
     {
@@ -5860,7 +5862,7 @@ g_child_watch_dispatch (GSource    *source,
   return FALSE;
 }
 
-#ifndef G_OS_WIN32
+#if !defined(G_OS_WIN32) && !defined(G_PLATFORM_WASM)
 
 static void
 g_unix_signal_handler (int signum)
@@ -5881,7 +5883,7 @@ g_unix_signal_handler (int signum)
   errno = saved_errno;
 }
 
-#endif /* !G_OS_WIN32 */
+#endif /* !G_OS_WIN32 && !G_PLATFORM_WASM */
 
 /**
  * g_child_watch_source_new:
@@ -5954,12 +5956,12 @@ g_child_watch_source_new (GPid pid)
 
   child_watch_source->pid = pid;
 
-#ifdef G_OS_WIN32
+#if defined(G_OS_WIN32) || defined(G_PLATFORM_WASM)
   child_watch_source->poll.fd = (gintptr) pid;
   child_watch_source->poll.events = G_IO_IN;
 
   g_source_add_poll (source, &child_watch_source->poll);
-#else /* !G_OS_WIN32 */
+#else /* !G_OS_WIN32 && !G_PLATFORM_WASM */
 
 #ifdef HAVE_PIDFD
   /* Use a pidfd, if possible, to avoid having to install a global SIGCHLD
@@ -5994,7 +5996,7 @@ g_child_watch_source_new (GPid pid)
   ref_unix_signal_handler_unlocked (SIGCHLD);
   unix_child_watches = g_slist_prepend (unix_child_watches, child_watch_source);
   G_UNLOCK (unix_signal_lock);
-#endif /* !G_OS_WIN32 */
+#endif /* !G_OS_WIN32 && !G_PLATFORM_WASM */
 
   return source;
 }
@@ -6441,7 +6443,7 @@ glib_worker_main (gpointer data)
     {
       g_main_context_iteration (glib_worker_context, TRUE);
 
-#ifdef G_OS_UNIX
+#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
       if (g_atomic_int_get (&any_unix_signal_pending))
         dispatch_unix_signals ();
 #endif
@@ -6458,7 +6460,7 @@ g_get_worker_context (void)
   if (g_once_init_enter (&initialised))
     {
       /* mask all signals in the worker thread */
-#ifdef G_OS_UNIX
+#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
       sigset_t prev_mask;
       sigset_t all;
 
@@ -6467,7 +6469,7 @@ g_get_worker_context (void)
 #endif
       glib_worker_context = g_main_context_new ();
       g_thread_new ("gmain", glib_worker_main, NULL);
-#ifdef G_OS_UNIX
+#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
       pthread_sigmask (SIG_SETMASK, &prev_mask, NULL);
 #endif
       g_once_init_leave (&initialised, TRUE);

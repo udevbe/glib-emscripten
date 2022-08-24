@@ -742,7 +742,7 @@ g_local_file_monitor_set_property (GObject *object, guint prop_id,
     g_object_notify (object, "rate-limit");
 }
 
-#ifndef G_OS_WIN32
+#if !defined(G_OS_WIN32) && !defined(G_PLATFORM_WASM)
 static void
 g_local_file_monitor_mounts_changed (GUnixMountMonitor *mount_monitor,
                                      gpointer           user_data)
@@ -792,7 +792,7 @@ g_local_file_monitor_start (GLocalFileMonitor *local_monitor,
 
   if (is_directory && !class->mount_notify && (flags & G_FILE_MONITOR_WATCH_MOUNTS))
     {
-#ifdef G_OS_WIN32
+#if defined(G_OS_WIN32) || defined(G_PLATFORM_WASM)
       /*claim everything was mounted */
       local_monitor->was_mounted = TRUE;
 #else

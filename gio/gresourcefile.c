@@ -516,6 +516,7 @@ g_resource_file_query_info (GFile                *file,
       g_file_info_set_file_type (info, G_FILE_TYPE_REGULAR);
       g_file_info_set_size (info, size);
 
+#ifndef G_PLATFORM_WASM
       if ((_g_file_attribute_matcher_matches_id (matcher, G_FILE_ATTRIBUTE_ID_STANDARD_CONTENT_TYPE) ||
            ((~resource_flags & G_RESOURCE_FLAGS_COMPRESSED) && 
             _g_file_attribute_matcher_matches_id (matcher, G_FILE_ATTRIBUTE_ID_STANDARD_FAST_CONTENT_TYPE))) &&
@@ -530,6 +531,7 @@ g_resource_file_query_info (GFile                *file,
           g_bytes_unref (bytes);
         }
       else
+#endif
         content_type = NULL;
 
       if (content_type)

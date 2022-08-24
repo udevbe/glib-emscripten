@@ -45,6 +45,10 @@
 #include "glib/glib-private.h"
 #include "glib/gstdio.h"
 
+#ifdef G_OS_UNIX
+#include <unistd.h>  /* dup() */
+#endif
+
 #ifdef G_OS_WIN32
 #include <io.h>
 #endif

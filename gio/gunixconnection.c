@@ -141,7 +141,7 @@ g_unix_connection_receive_fd (GUnixConnection  *connection,
                               GCancellable     *cancellable,
                               GError          **error)
 {
-#ifdef G_OS_UNIX
+#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
   GSocketControlMessage **scms;
   gint *fds, nfd, fd, nscm;
   GUnixFDMessage *fdmsg;
