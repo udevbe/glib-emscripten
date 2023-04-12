@@ -7748,7 +7748,8 @@ g_file_load_contents (GFile         *file,
                       GError       **error)
 {
   GFileInputStream *in;
-  GByteArray *content;
+  char *data;
+  gsize size;
   gsize pos;
   gssize res;
   GFileInfo *info;
@@ -7760,17 +7761,21 @@ g_file_load_contents (GFile         *file,
   if (in == NULL)
     return FALSE;
 
-  content = g_byte_array_new ();
+  size = GET_CONTENT_BLOCK_SIZE;
+  data = g_malloc (GET_CONTENT_BLOCK_SIZE);
   pos = 0;
 
-  g_byte_array_set_size (content, pos + GET_CONTENT_BLOCK_SIZE + 1);
   while ((res = g_input_stream_read (G_INPUT_STREAM (in),
-                                     content->data + pos,
+                                     data + pos,
                                      GET_CONTENT_BLOCK_SIZE,
                                      cancellable, error)) > 0)
     {
       pos += res;
-      g_byte_array_set_size (content, pos + GET_CONTENT_BLOCK_SIZE + 1);
+      if (size - pos < GET_CONTENT_BLOCK_SIZE)
+        {
+          size <<= 1;
+          data = g_realloc (data, size);
+        }
     }
 
   if (etag_out)
@@ -7795,17 +7800,19 @@ g_file_load_contents (GFile         *file,
   if (res < 0)
     {
       /* error is set already */
-      g_byte_array_free (content, TRUE);
+      g_free (data);
       return FALSE;
     }
 
   if (length)
     *length = pos;
 
-  /* Zero terminate (we got an extra byte allocated for this */
-  content->data[pos] = 0;
+  /* Zero terminate (allocating extra bytes if needed */
+  if (pos >= size)
+    data = g_realloc (data, pos + 1);
+  data[pos] = 0;
 
-  *contents = (char *)g_byte_array_free (content, FALSE);
+  *contents = data;
 
   return TRUE;
 }
@@ -7813,7 +7820,8 @@ g_file_load_contents (GFile         *file,
 typedef struct {
   GTask *task;
   GFileReadMoreCallback read_more_callback;
-  GByteArray *content;
+  char *data;
+  gsize size;
   gsize pos;
   char *etag;
 } LoadContentsData;
@@ -7822,10 +7830,29 @@ typedef struct {
 static void
 load_contents_data_free (LoadContentsData *data)
 {
-  if (data->content)
-    g_byte_array_free (data->content, TRUE);
+  g_clear_pointer (&data->data, g_free);
   g_free (data->etag);
   g_free (data);
+}
+
+static void
+load_contents_data_ensure_space (LoadContentsData *data,
+                                 gsize             space)
+{
+  if (data->size - data->pos < space)
+    {
+      if (data->data == NULL)
+        {
+          data->size = space;
+          data->data = g_malloc (space);
+        }
+      else
+        {
+          g_assert (data->size < (data->size << 1));
+          data->size <<= 1;
+          data->data = g_realloc (data->data, data->size);
+        }
+    }
 }
 
 static void
@@ -7900,12 +7927,10 @@ load_contents_read_callback (GObject      *obj,
     {
       data->pos += read_size;
 
-      g_byte_array_set_size (data->content,
-                             data->pos + GET_CONTENT_BLOCK_SIZE);
-
+      load_contents_data_ensure_space (data, GET_CONTENT_BLOCK_SIZE);
 
       if (data->read_more_callback &&
-          !data->read_more_callback ((char *)data->content->data, data->pos,
+          !data->read_more_callback (data->data, data->pos,
                                      g_async_result_get_user_data (G_ASYNC_RESULT (data->task))))
         g_file_input_stream_query_info_async (G_FILE_INPUT_STREAM (stream),
                                               G_FILE_ATTRIBUTE_ETAG_VALUE,
@@ -7915,7 +7940,7 @@ load_contents_read_callback (GObject      *obj,
                                               data);
       else
         g_input_stream_read_async (stream,
-                                   data->content->data + data->pos,
+                                   data->data + data->pos,
                                    GET_CONTENT_BLOCK_SIZE,
                                    0,
                                    g_task_get_cancellable (data->task),
@@ -7938,10 +7963,9 @@ load_contents_open_callback (GObject      *obj,
 
   if (stream)
     {
-      g_byte_array_set_size (data->content,
-                             data->pos + GET_CONTENT_BLOCK_SIZE);
+      load_contents_data_ensure_space (data, GET_CONTENT_BLOCK_SIZE);
       g_input_stream_read_async (G_INPUT_STREAM (stream),
-                                 data->content->data + data->pos,
+                                 data->data + data->pos,
                                  GET_CONTENT_BLOCK_SIZE,
                                  0,
                                  g_task_get_cancellable (data->task),
@@ -7991,7 +8015,6 @@ g_file_load_partial_contents_async (GFile                 *file,
 
   data = g_new0 (LoadContentsData, 1);
   data->read_more_callback = read_more_callback;
-  data->content = g_byte_array_new ();
 
   data->task = g_task_new (file, cancellable, callback, user_data);
   g_task_set_source_tag (data->task, g_file_load_partial_contents_async);
@@ -8060,11 +8083,11 @@ g_file_load_partial_contents_finish (GFile         *file,
     }
 
   /* Zero terminate */
-  g_byte_array_set_size (data->content, data->pos + 1);
-  data->content->data[data->pos] = 0;
+  load_contents_data_ensure_space (data, 1);
+  data->data[data->pos] = 0;
 
-  *contents = (char *)g_byte_array_free (data->content, FALSE);
-  data->content = NULL;
+  *contents = data->data;
+  data->data = NULL;
 
   return TRUE;
 }
