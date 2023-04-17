@@ -9122,7 +9122,17 @@ g_file_load_bytes (GFile         *file,
   if (etag_out != NULL)
     *etag_out = NULL;
 
-  if (g_file_has_uri_scheme (file, "resource"))
+  if (g_file_has_uri_scheme (file, "file"))
+    {
+      GMappedFile *mapped = g_mapped_file_new (g_file_peek_path (file), FALSE, NULL);
+      if (mapped)
+        {
+          GBytes *bytes = g_mapped_file_get_bytes (mapped);
+          g_mapped_file_unref (mapped);
+          return bytes;
+        }
+    }
+  else if (g_file_has_uri_scheme (file, "resource"))
     {
       GBytes *bytes;
       gchar *uri, *unescaped;
