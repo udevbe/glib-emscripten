@@ -13,6 +13,9 @@ girepository_tests = {
 # Some tests require GIR files to have been generated
 if enable_gir
   girepository_tests += {
+    'callable-info' : {
+      'depends': [glib_gir, gobject_gir, gio_gir],
+    },
     'function-info' : {
       'dependencies': [libffi_dep],
       'depends': [glib_gir],

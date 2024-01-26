@@ -378,6 +378,17 @@ locate_gir (GIIrParser *parser,
                  line_number, char_number, attribute, element);                \
   } while (0)
 
+#define INVALID_ATTRIBUTE(context,error,element,attribute,reason)                                \
+  do {                                                                          \
+    int line_number, char_number;                                                \
+    g_markup_parse_context_get_position (context, &line_number, &char_number);  \
+    g_set_error (error,                                                         \
+                    G_MARKUP_ERROR,                                                \
+                 G_MARKUP_ERROR_INVALID_CONTENT,                                \
+                 "Line %d, character %d: The attribute '%s' on the element '%s' is not valid: %s",    \
+                 line_number, char_number, attribute, element, reason);                \
+  } while (0)
+
 static const char *
 find_attribute (const char   *name,
                 const char **attribute_names,
@@ -870,6 +881,9 @@ start_function (GMarkupParseContext  *context,
   const char *throws;
   const char *set_property;
   const char *get_property;
+  const char *finish_func;
+  const char *async_func;
+  const char *sync_func;
   GIIrNodeFunction *function;
   gboolean found = FALSE;
   ParseState in_embedded_state = STATE_NONE;
@@ -920,6 +934,9 @@ start_function (GMarkupParseContext  *context,
   throws = find_attribute ("throws", attribute_names, attribute_values);
   set_property = find_attribute ("glib:set-property", attribute_names, attribute_values);
   get_property = find_attribute ("glib:get-property", attribute_names, attribute_values);
+  finish_func = find_attribute ("glib:finish-func", attribute_names, attribute_values);
+  sync_func = find_attribute ("glib:sync-func", attribute_names, attribute_values);
+  async_func = find_attribute ("glib:async-func", attribute_names, attribute_values);
 
   if (name == NULL)
     {
@@ -945,6 +962,55 @@ start_function (GMarkupParseContext  *context,
     function->deprecated = TRUE;
   else
     function->deprecated = FALSE;
+
+  function->is_async = FALSE;
+  function->async_func = NULL;
+  function->sync_func = NULL;
+  function->finish_func = NULL;
+
+  // Only asynchronous functions have a glib:sync-func defined
+  if (sync_func)
+    {
+      if (G_UNLIKELY (async_func != NULL))
+        {
+          INVALID_ATTRIBUTE (context, error, element_name, "glib:sync-func", "glib:sync-func should only be defined with asynchronous "
+                 "functions");
+        
+          return FALSE;
+        }
+
+      function->is_async = TRUE;
+      function->sync_func = g_strdup (sync_func);
+    }
+
+  // Only synchronous functions have a glib:async-func defined
+  if (async_func)
+    {
+      if (G_UNLIKELY (sync_func != NULL))
+        {
+          INVALID_ATTRIBUTE (context, error, element_name, "glib:async-func", "glib:async-func should only be defined with synchronous "
+                 "functions");
+        
+          return FALSE;
+        }
+
+      function->is_async = FALSE;
+      function->async_func = g_strdup (async_func);
+    }
+
+  if (finish_func)
+    {
+      if (G_UNLIKELY (async_func != NULL))
+        {
+          INVALID_ATTRIBUTE (context, error, element_name, "glib:finish-func", "glib:finish-func should only be defined with asynchronous "
+                 "functions");
+        
+          return FALSE;
+        }
+
+      function->is_async = TRUE;
+      function->finish_func = g_strdup (finish_func);
+    }
 
   if (strcmp (element_name, "method") == 0 ||
       strcmp (element_name, "constructor") == 0)
