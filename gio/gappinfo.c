@@ -25,6 +25,7 @@
 #include "gappinfo.h"
 #include "gappinfoprivate.h"
 #include "gcontextspecificgroup.h"
+#include "gdesktopappinfo.h"
 #include "gtask.h"
 #include "gcancellable.h"
 
@@ -1025,16 +1026,46 @@ g_app_info_launch_default_for_uri (const char         *uri,
     {
       GFile *file = NULL;
       const char *parent_window = NULL;
+      char *startup_id = NULL;
 
       /* Reset any error previously set by launch_default_for_uri */
       g_clear_error (error);
 
-      if (launch_context && launch_context->priv->envp)
-        parent_window = g_environ_getenv (launch_context->priv->envp, "PARENT_WINDOW_ID");
-
       file = g_file_new_for_uri (uri);
-      res = g_openuri_portal_open_file (file, parent_window, error);
+
+      if (launch_context)
+        {
+          GApplication *app = NULL;
+          const char *app_id = NULL;
+
+          if (launch_context->priv->envp)
+            parent_window = g_environ_getenv (launch_context->priv->envp, "PARENT_WINDOW_ID");
+
+          app = g_application_get_default ();
+
+          if (app)
+            app_id = g_application_get_application_id (app);
+
+          if (app_id)
+            app_info = G_APP_INFO (g_desktop_app_info_new (app_id));
+
+          if (app_info)
+            {
+              GList *file_list = g_list_prepend (NULL, file);
+
+              startup_id = g_app_launch_context_get_startup_notify_id (launch_context,
+                                                                              app_info,
+                                                                              file_list);
+              g_list_free (file_list);
+            }
+
+          g_object_unref (app_info);
+        }
+
+      res = g_openuri_portal_open_file (file, parent_window, startup_id, error);
+
       g_object_unref (file);
+      g_free (startup_id);
     }
 #endif
 
@@ -1083,21 +1114,51 @@ launch_default_for_uri_portal_open_uri (GTask *task, GError *error)
     {
       GFile *file;
       const char *parent_window = NULL;
+      char *startup_id = NULL;
 
       /* Reset any error previously set by launch_default_for_uri */
       g_error_free (error);
 
-      if (data->context && data->context->priv->envp)
-        parent_window = g_environ_getenv (data->context->priv->envp,
-                                          "PARENT_WINDOW_ID");
-
       file = g_file_new_for_uri (data->uri);
+
+      if (data->context)
+        {
+          GApplication *app = NULL;
+          GAppInfo *app_info = NULL;
+          const char *app_id = NULL;
+
+          if (data->context->priv->envp)
+            parent_window = g_environ_getenv (data->context->priv->envp,
+                                              "PARENT_WINDOW_ID");
+
+          app = g_application_get_default ();
+
+          if (app)
+            app_id = g_application_get_application_id (app);
+
+          if (app_id)
+            app_info = G_APP_INFO (g_desktop_app_info_new (app_id));
+
+          if (app_info)
+            {
+              GList *file_list = g_list_prepend (NULL, file);
+
+              startup_id = g_app_launch_context_get_startup_notify_id (data->context,
+                                                                              app_info,
+                                                                              file_list);
+              g_list_free (file_list);
+            }
+
+          g_object_unref (app_info);
+        }
       g_openuri_portal_open_file_async (file,
                                         parent_window,
+                                        startup_id,
                                         cancellable,
                                         launch_default_for_uri_portal_open_uri_cb,
                                         g_steal_pointer (&task));
       g_object_unref (file);
+      g_free (startup_id);
 
       return;
     }
