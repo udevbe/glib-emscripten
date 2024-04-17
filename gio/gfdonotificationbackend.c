@@ -287,6 +287,7 @@ call_notify (GDBusConnection     *con,
   guint i;
   GVariantBuilder hints_builder;
   GIcon *icon;
+  GVariant *sound;
   GVariant *parameters;
   const gchar *app_name;
   const gchar *body;
@@ -357,6 +358,33 @@ call_notify (GDBusConnection     *con,
            /* Take first name from GThemedIcon */
            g_variant_builder_add (&hints_builder, "{sv}", "image-path",
                                   g_variant_new_string (icon_names[0]));
+        }
+    }
+
+  sound = g_notification_get_sound (notification);
+  if (sound)
+    {
+      const char *key;
+      g_autoptr(GVariant) value = NULL;
+
+      g_variant_get (sound, "(&sv)", &key, &value);
+
+      if (strcmp (key, "themed") == 0)
+        {
+          g_autofree const gchar** sound_names = NULL;
+
+          sound_names = g_variant_get_strv (value, NULL);
+          /* Take first name from the possible themed sounds */
+          g_variant_builder_add (&hints_builder, "{sv}", "sound-name",
+                                 g_variant_new_string (sound_names[0]));
+        }
+      else if (strcmp (key, "bytes") == 0)
+        {
+          g_variant_builder_add (&hints_builder, "{sv}", "x-gnome-sound-data", value);
+        }
+      else if (strcmp (key, "file") == 0)
+        {
+          g_variant_builder_add (&hints_builder, "{sv}", "sound-file", value);
         }
     }
 

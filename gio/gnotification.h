@@ -53,6 +53,18 @@ GIO_AVAILABLE_IN_2_40
 void                    g_notification_set_icon                         (GNotification *notification,
                                                                          GIcon         *icon);
 
+GIO_AVAILABLE_IN_2_80
+void                    g_notification_set_sound_from_file              (GNotification *notification,
+                                                                         GFile          *file);
+
+GIO_AVAILABLE_IN_2_80
+void                    g_notification_set_sound_from_bytes             (GNotification *notification,
+                                                                         GBytes        *bytes);
+
+GIO_AVAILABLE_IN_2_80
+void                    g_notification_set_silent                       (GNotification *notification,
+                                                                         gboolean       silent);
+
 GIO_DEPRECATED_IN_2_42_FOR(g_notification_set_priority)
 void                    g_notification_set_urgent                       (GNotification *notification,
                                                                          gboolean       urgent);
