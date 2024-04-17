@@ -49,7 +49,31 @@ G_DEFINE_TYPE_WITH_CODE (GPortalNotificationBackend, g_portal_notification_backe
 static gboolean
 g_portal_notification_backend_is_supported (void)
 {
-  return glib_should_use_portal ();
+  g_autoptr(GDBusConnection) session_bus = NULL;
+  g_autoptr(GVariant) reply = NULL;
+
+  if (glib_should_use_portal ())
+    return TRUE;
+
+  /* Find out if the notification server is running. This is a
+   * synchronous call because gio extension points don't support async
+   * backend verification. This is only run once and only contacts the
+   * dbus daemon. */
+
+  session_bus = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+  if (session_bus == NULL)
+    return FALSE;
+
+  reply = g_dbus_connection_call_sync (session_bus,
+                                       "org.freedesktop.DBus",
+                                       "/org/freedesktop/DBus",
+                                       "org.freedesktop.DBus",
+                                       "GetNameOwner",
+                                       g_variant_new ("(s)", "org.freedesktop.portal.Notification"),
+                                       G_VARIANT_TYPE ("(s)"),
+                                       G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
+
+  return reply != NULL;
 }
 
 static void
