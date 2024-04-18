@@ -49,7 +49,7 @@ G_DEFINE_TYPE_WITH_CODE (GPortalNotificationBackend, g_portal_notification_backe
 static gboolean
 g_portal_notification_backend_is_supported (void)
 {
-  g_autoptr(GDBusConnection) session_bus = NULL;
+  GDBusConnection *session_bus = NULL;
   g_autoptr(GVariant) reply = NULL;
 
   if (glib_should_use_portal ())
@@ -72,6 +72,8 @@ g_portal_notification_backend_is_supported (void)
                                        g_variant_new ("(s)", "org.freedesktop.portal.Notification"),
                                        G_VARIANT_TYPE ("(s)"),
                                        G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
+
+  g_object_unref (session_bus);
 
   return reply != NULL;
 }
