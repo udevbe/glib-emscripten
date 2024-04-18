@@ -96,6 +96,7 @@ struct _GNotification
   GPtrArray *buttons;
   gchar *default_action;
   GVariant *default_action_target;  /* (nullable) (owned), not floating */
+  gchar *desktop_file_id;
 };
 
 typedef struct
@@ -144,6 +145,7 @@ g_notification_finalize (GObject *object)
   if (notification->default_action_target)
     g_variant_unref (notification->default_action_target);
   g_ptr_array_free (notification->buttons, TRUE);
+  g_free (notification->desktop_file_id);
 
   G_OBJECT_CLASS (g_notification_parent_class)->finalize (object);
 }
@@ -904,6 +906,48 @@ g_notification_set_default_action_and_target_value (GNotification *notification,
     notification->default_action_target = g_variant_ref_sink (target);
 }
 
+/*< private >
+ * g_notification_get_desktop_file_id:
+ * @notification: a #GNotification
+ *
+ * Gets the current desktop file id of @notification.
+ *
+ * Returns: (nullable): the desktop file id of @notification
+ *
+ * Since: 2.80
+ */
+const gchar *
+g_notification_get_desktop_file_id (GNotification *notification)
+{
+  g_return_val_if_fail (G_IS_NOTIFICATION (notification), NULL);
+
+  return notification->desktop_file_id;
+}
+
+/*< private >
+ * g_notification_set_desktop_file_id:
+ * @notification: a #GNotification
+ * @desktop_file_id: (nullable): the new desktop file id for @notification, or %NULL
+ *
+ * Sets the desktop file id of @notification to @desktop_file_id.
+ * The desktop file id should follow the
+ * [Desktop Entry Specification](https://specifications.freedesktop.org/desktop-entry-spec/latest).
+ * and must contain the ".desktop" suffix.
+ *
+ * Since: 2.80
+ */
+void
+g_notification_set_desktop_file_id (GNotification *notification,
+                                    const gchar   *desktop_file_id)
+{
+  g_return_if_fail (G_IS_NOTIFICATION (notification));
+  g_return_if_fail (desktop_file_id == NULL || g_str_has_suffix (desktop_file_id, ".desktop"));
+
+  g_free (notification->desktop_file_id);
+
+  notification->desktop_file_id = g_strdup (desktop_file_id);
+}
+
 static GVariant *
 g_notification_serialize_button (Button *button)
 {
@@ -1002,6 +1046,8 @@ g_notification_serialize (GNotification *notification)
       g_variant_builder_add (&builder, "{s@as}", "display-hint", g_notification_serialize_display_hint (notification));
     }
 
+  if (notification->desktop_file_id)
+    g_variant_builder_add (&builder, "{sv}", "desktop-file-id", g_variant_new_string (notification->desktop_file_id));
 
   if (notification->default_action)
     {

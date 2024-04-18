@@ -83,6 +83,12 @@ g_portal_notification_backend_send_notification (GNotificationBackend *backend,
                                                  const gchar          *id,
                                                  GNotification        *notification)
 {
+
+  g_autofree gchar *desktop_file_id = NULL;
+
+  desktop_file_id = g_strconcat (g_application_get_application_id (backend->application), ".desktop", NULL);
+  g_notification_set_desktop_file_id (notification, desktop_file_id);
+
   g_dbus_connection_call (backend->dbus_connection,
                           "org.freedesktop.portal.Desktop",
                           "/org/freedesktop/portal/desktop",

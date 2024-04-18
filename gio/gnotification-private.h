@@ -55,6 +55,10 @@ gboolean                g_notification_get_default_action               (GNotifi
                                                                          gchar         **action,
                                                                          GVariant      **target);
 
+const gchar *           g_notification_get_desktop_file_id              (GNotification *notification);
+void                    g_notification_set_desktop_file_id              (GNotification *notification,
+                                                                         const gchar   *desktop_file_id);
+
 GVariant *              g_notification_serialize                        (GNotification *notification);
 
 #endif
