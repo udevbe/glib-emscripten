@@ -26,6 +26,7 @@
 #include "gicon.h"
 #include "gaction.h"
 #include "gioenumtypes.h"
+#include "gfile.h"
 
 /**
  * GNotification:
@@ -343,7 +344,7 @@ g_notification_set_sound_from_file (GNotification *notification,
   g_return_if_fail (G_IS_NOTIFICATION (notification));
 
   if (notification->sound)
-    g_object_clear (&notification->sound, g_variant_unref);
+    g_clear_pointer (&notification->sound, g_variant_unref);
 
   if (file == NULL)
     return;
@@ -352,7 +353,7 @@ g_notification_set_sound_from_file (GNotification *notification,
   if (!path)
     return;
 
-  sound = g_variant_new ("{sv}", "file", g_variant_take_string (path));
+  sound = g_variant_new ("(sv)", "file", g_variant_new_take_string (path));
 
   notification->sound = g_variant_ref_sink (sound);
 }
@@ -375,12 +376,12 @@ g_notification_set_sound_from_bytes (GNotification *notification,
   g_return_if_fail (G_IS_NOTIFICATION (notification));
 
   if (notification->sound)
-    g_object_clear (&notification->sound, g_variant_unref);
+    g_clear_pointer (&notification->sound, g_variant_unref);
 
   if (bytes == NULL)
     return;
 
-  sound = g_variant_new ("{sv}", "bytes", g_variant_new_from_bytes (bytes, TRUE);
+  sound = g_variant_new ("(sv)", "bytes", g_variant_new_from_bytes (G_VARIANT_TYPE_BYTESTRING, bytes, TRUE));
   notification->sound = g_variant_ref_sink (sound);
 }
 
@@ -402,12 +403,12 @@ g_notification_set_silent (GNotification *notification,
   g_return_if_fail (G_IS_NOTIFICATION (notification));
 
   if (notification->sound)
-    g_object_clear (&notification->sound, g_variant_unref);
+    g_clear_pointer (&notification->sound, g_variant_unref);
 
   if (silent)
     return;
 
-  sound = g_variant_new_string ("silent")
+  sound = g_variant_new_string ("silent");
   notification->sound = g_variant_ref_sink (sound);
 }
 
