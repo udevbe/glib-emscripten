@@ -92,6 +92,7 @@ struct _GNotification
   GVariant *sound;
   GNotificationPriority priority;
   gchar *category;
+  GNotificationDisplayHintFlags display_hint;
   GPtrArray *buttons;
   gchar *default_action;
   GVariant *default_action_target;  /* (nullable) (owned), not floating */
@@ -494,6 +495,38 @@ g_notification_set_category (GNotification *notification,
   g_free (notification->category);
 
   notification->category = g_strdup (category);
+}
+
+/*< private >
+ * g_notification_get_display_hint_flags:
+ * @notification: a #GNotification
+ *
+ * Returns: the display hint flags of @notification
+ *
+ * Since: 2.80
+ */
+GNotificationDisplayHintFlags
+g_notification_get_display_hint_flags (GNotification *notification)
+{
+  g_return_val_if_fail (G_IS_NOTIFICATION (notification), G_NOTIFICATION_DISPLAY_HINT_NONE);
+
+  return notification->display_hint;
+}
+
+/**
+ * g_notification_set_display_hint_flags:
+ * @notification: a #GNotification
+ * @flags: the display hint flags for @notification
+ *
+ * Since: 2.80
+ */
+void
+g_notification_set_display_hint_flags (GNotification                 *notification,
+                                       GNotificationDisplayHintFlags  flags)
+{
+  g_return_if_fail (G_IS_NOTIFICATION (notification));
+
+  notification->display_hint = flags;
 }
 
 /**
@@ -903,6 +936,29 @@ g_notification_get_priority_nick (GNotification *notification)
   return nick;
 }
 
+static GVariant *
+g_notification_serialize_display_hint (GNotification *notification)
+{
+  g_autoptr(GFlagsClass) flags_class = NULL;
+  GFlagsValue *flags_value;
+  GVariantBuilder builder;
+  GNotificationDisplayHintFlags value;
+
+  value = notification->display_hint;
+  flags_class = g_type_class_ref (G_TYPE_NOTIFICATION_DISPLAY_HINT_FLAGS);
+
+  g_variant_builder_init (&builder, G_VARIANT_TYPE ("as"));
+
+  while (value != G_NOTIFICATION_DISPLAY_HINT_NONE &&
+         (flags_value = g_flags_get_first_value (flags_class, value)) != NULL)
+    {
+      g_variant_builder_add (&builder, "s", flags_value->value_name);
+      value &= ~flags_value->value;
+    }
+
+  return g_variant_builder_end (&builder);
+}
+
 /*< private >
  * g_notification_serialize:
  *
@@ -940,6 +996,12 @@ g_notification_serialize (GNotification *notification)
     g_variant_builder_add (&builder, "{sv}", "sound", g_variant_new_string ("default"));
 
   g_variant_builder_add (&builder, "{sv}", "priority", g_notification_get_priority_nick (notification));
+
+  if (notification->display_hint && notification->display_hint != G_NOTIFICATION_DISPLAY_HINT_NONE)
+    {
+      g_variant_builder_add (&builder, "{s@as}", "display-hint", g_notification_serialize_display_hint (notification));
+    }
+
 
   if (notification->default_action)
     {
