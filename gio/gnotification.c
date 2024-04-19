@@ -88,6 +88,7 @@ struct _GNotification
 
   gchar *title;
   gchar *body;
+  gchar *markup_body;
   GIcon *icon;
   GVariant *sound;
   GNotificationPriority priority;
@@ -138,6 +139,7 @@ g_notification_finalize (GObject *object)
 
   g_free (notification->title);
   g_free (notification->body);
+  g_free (notification->markup_body);
   if (notification->sound)
     g_variant_unref (notification->sound);
   g_free (notification->category);
@@ -269,6 +271,45 @@ g_notification_set_body (GNotification *notification,
   g_free (notification->body);
 
   notification->body = g_strdup (body);
+}
+
+/*< private >
+ * g_notification_get_markup_body:
+ * @notification: a #GNotification
+ *
+ * Gets the current markup body of @notification.
+ *
+ * Returns: (nullable): the markup body of @notification
+ *
+ * Since: 2.80
+ */
+const gchar *
+g_notification_get_markup_body (GNotification *notification)
+{
+  g_return_val_if_fail (G_IS_NOTIFICATION (notification), NULL);
+
+  return notification->markup_body;
+}
+
+/**
+ * g_notification_set_markup_body:
+ * @notification: a #GNotification
+ * @markup_body: (nullable): the new body using markup for @notification, or %NULL
+ *
+ * Sets the markup body of @notification to @markup_body.
+ *
+ * Since: 2.80
+ */
+void
+g_notification_set_markup_body (GNotification *notification,
+                                const gchar   *markup_body)
+{
+  g_return_if_fail (G_IS_NOTIFICATION (notification));
+  g_return_if_fail (markup_body == NULL || *markup_body != '\0');
+
+  g_free (notification->markup_body);
+
+  notification->markup_body = g_strdup (markup_body);
 }
 
 /*< private >
@@ -1022,6 +1063,9 @@ g_notification_serialize (GNotification *notification)
 
   if (notification->body)
     g_variant_builder_add (&builder, "{sv}", "body", g_variant_new_string (notification->body));
+
+  if (notification->markup_body)
+    g_variant_builder_add (&builder, "{sv}", "markup-body", g_variant_new_string (notification->markup_body));
 
   if (notification->icon)
     {
