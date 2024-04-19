@@ -799,7 +799,7 @@ typedef enum {
  *
  * GResourceFlags give information about a particular file inside a resource
  * bundle.
- * 
+ *
  * Since: 2.32
  **/
 typedef enum {
@@ -812,7 +812,7 @@ typedef enum {
  * @G_RESOURCE_LOOKUP_FLAGS_NONE: No flags set.
  *
  * GResourceLookupFlags determine how resource path lookups are handled.
- * 
+ *
  * Since: 2.32
  **/
 typedef enum /*< flags >*/ {
@@ -2087,7 +2087,7 @@ typedef enum {
   G_NOTIFICATION_DISPLAY_HINT_PERSISTENT                   = (1 << 2),  /*< nick=persistent >*/
   G_NOTIFICATION_DISPLAY_HINT_HIDE_ON_LOCKSCREEN           = (1 << 3),  /*< nick=hide-on-lockscreen >*/
   G_NOTIFICATION_DISPLAY_HINT_HIDE_CONTENT_ON_LOCKSCREEN   = (1 << 4),  /*< nick=hide-content-on-lockscreen >*/
-  G_NOTIFICATION_DISPLAY_HINT_SHOW_AS_NEW                  = (1 << 5),  /*< nick=show-as-new >*/
+  G_NOTIFICATION_DISPLAY_HINT_UPDATE                       = (1 << 5),  /*< nick=update>*/
 } GNotificationDisplayHintFlags;
 
 /**

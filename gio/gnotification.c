@@ -1028,6 +1028,7 @@ g_notification_serialize_display_hint (GNotification *notification)
   GFlagsValue *flags_value;
   GVariantBuilder builder;
   GNotificationDisplayHintFlags value;
+  gboolean should_show_as_new = TRUE;
 
   value = notification->display_hint;
   flags_class = g_type_class_ref (G_TYPE_NOTIFICATION_DISPLAY_HINT_FLAGS);
@@ -1037,9 +1038,16 @@ g_notification_serialize_display_hint (GNotification *notification)
   while (value != G_NOTIFICATION_DISPLAY_HINT_NONE &&
          (flags_value = g_flags_get_first_value (flags_class, value)) != NULL)
     {
-      g_variant_builder_add (&builder, "s", flags_value->value_name);
+      /* The display-hint 'update' needs to be serialized as 'show-as-new' */
+      if (flags_value->value == G_NOTIFICATION_DISPLAY_HINT_UPDATE)
+        should_show_as_new = FALSE;
+      else
+        g_variant_builder_add (&builder, "s", flags_value->value_name);
       value &= ~flags_value->value;
     }
+
+  if (should_show_as_new)
+    g_variant_builder_add (&builder, "s", "show-as-new");
 
   return g_variant_builder_end (&builder);
 }
@@ -1085,10 +1093,7 @@ g_notification_serialize (GNotification *notification)
 
   g_variant_builder_add (&builder, "{sv}", "priority", g_notification_get_priority_nick (notification));
 
-  if (notification->display_hint && notification->display_hint != G_NOTIFICATION_DISPLAY_HINT_NONE)
-    {
-      g_variant_builder_add (&builder, "{s@as}", "display-hint", g_notification_serialize_display_hint (notification));
-    }
+  g_variant_builder_add (&builder, "{s@as}", "display-hint", g_notification_serialize_display_hint (notification));
 
   if (notification->desktop_file_id)
     g_variant_builder_add (&builder, "{sv}", "desktop-file-id", g_variant_new_string (notification->desktop_file_id));
