@@ -98,3 +98,23 @@ g_notification_backend_withdraw_notification (GNotificationBackend *backend,
 
   G_NOTIFICATION_BACKEND_GET_CLASS (backend)->withdraw_notification (backend, id);
 }
+
+GList *
+g_notification_backend_supported_categories (GNotificationBackend *backend,
+                                             const gchar          **custom_options)
+{
+  g_return_if_fail (G_IS_NOTIFICATION_BACKEND (backend));
+  g_return_if_fail (id != NULL);
+
+  G_NOTIFICATION_BACKEND_GET_CLASS (backend)->withdraw_notification (backend, id);
+}
+
+void
+g_notification_backend_supported_purpose_for_category (GNotificationBackend *backend,
+                                                       const gchar          *id)
+{
+  g_return_if_fail (G_IS_NOTIFICATION_BACKEND (backend));
+  g_return_if_fail (id != NULL);
+
+  G_NOTIFICATION_BACKEND_GET_CLASS (backend)->withdraw_notification (backend, id);
+}

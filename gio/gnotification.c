@@ -107,6 +107,13 @@ typedef struct
   GVariant *target;
 } Button;
 
+typedef struct
+{
+  gchar *label;
+  gchar *action_name;
+  gchar **action_name
+} SupportedOptions;
+
 G_DEFINE_TYPE (GNotification, g_notification, G_TYPE_OBJECT)
 
 static void

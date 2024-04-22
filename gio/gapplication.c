@@ -3172,6 +3172,73 @@ g_application_withdraw_notification (GApplication *application,
   g_notification_backend_withdraw_notification (application->priv->notifications, id);
 }
 
+/**
+ * g_application_supported_notification_categories:
+ * @application: a #GApplication
+ * @id: id of a previously sent notification
+ *
+ * Withdraws a notification that was sent with
+ * g_application_send_notification().
+ *
+ * This call does nothing if a notification with @id doesn't exist or
+ * the notification was never sent.
+ *
+ * This function works even for notifications sent in previous
+ * executions of this application, as long @id is the same as it was for
+ * the sent notification.
+ *
+ * Note that notifications are dismissed when the user clicks on one
+ * of the buttons in a notification or triggers its default action, so
+ * there is no need to explicitly withdraw the notification in that case.
+ *
+ * Since: 2.40
+ */
+void
+g_application_supported_notification_categories (GApplication *application)
+{
+  g_return_if_fail (G_IS_APPLICATION (application));
+  g_return_if_fail (id != NULL);
+
+  if (application->priv->notifications == NULL)
+    application->priv->notifications = g_notification_backend_new_default (application);
+
+  g_notification_backend_withdraw_notification (application->priv->notifications, id);
+}
+
+/**
+ * g_application_supported_notification_categories:
+ * @application: a #GApplication
+ * @id: id of a previously sent notification
+ *
+ * Withdraws a notification that was sent with
+ * g_application_send_notification().
+ *
+ * This call does nothing if a notification with @id doesn't exist or
+ * the notification was never sent.
+ *
+ * This function works even for notifications sent in previous
+ * executions of this application, as long @id is the same as it was for
+ * the sent notification.
+ *
+ * Note that notifications are dismissed when the user clicks on one
+ * of the buttons in a notification or triggers its default action, so
+ * there is no need to explicitly withdraw the notification in that case.
+ *
+ * Since: 2.40
+ */
+void
+g_application_supported_notification_button_purpose_for_category (GApplication *application,
+                                                                  const gchar  *id)
+{
+  g_return_if_fail (G_IS_APPLICATION (application));
+  g_return_if_fail (id != NULL);
+
+  if (application->priv->notifications == NULL)
+    application->priv->notifications = g_notification_backend_new_default (application);
+
+  g_notification_backend_withdraw_notification (application->priv->notifications, id);
+}
+
 /* Busy binding {{{1 */
 
 typedef struct
