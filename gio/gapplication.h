@@ -150,6 +150,8 @@ GDBusConnection *       g_application_get_dbus_connection               (GApplic
 GIO_AVAILABLE_IN_2_34
 const gchar *           g_application_get_dbus_object_path              (GApplication             *application);
 
+GVariant *             g_application_get_dbus_activation_extra_parameter (GApplication            *application);
+
 GIO_AVAILABLE_IN_ALL
 guint                   g_application_get_inactivity_timeout            (GApplication             *application);
 GIO_AVAILABLE_IN_ALL

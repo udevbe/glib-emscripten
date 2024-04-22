@@ -2277,6 +2277,26 @@ g_application_get_dbus_object_path (GApplication *application)
   return g_application_impl_get_dbus_object_path (application->priv->impl);
 }
 
+/**
+ * g_application_get_dbus_activation_extra_parameter:
+ * @application: a #GApplication
+ *
+ * Gets the additional values passed as parameter when activating an action
+ * via [D-Bus activation][https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s08.html]
+ *
+ * This method only gives valid information during the activation of the action.
+ *
+ * Returns: (nullable): the additional values as GVariant array, or %NULL
+ *
+ * Since: 2.80
+ **/
+GVariant *
+g_application_get_dbus_activation_extra_parameter (GApplication *application)
+{
+  g_return_val_if_fail (G_IS_APPLICATION (application), NULL);
+
+  return g_object_get_data (G_OBJECT (application), "extra-parameter");
+}
 
 /* Register {{{1 */
 /**

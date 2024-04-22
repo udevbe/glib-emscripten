@@ -284,6 +284,7 @@ g_application_impl_method_call (GDBusConnection       *connection,
     {
       GVariant *parameter = NULL;
       GVariant *platform_data;
+      GVariant *extra_parameter = NULL;
       GVariantIter *iter;
       const gchar *name;
       const GVariantType *parameter_type = NULL;
@@ -292,6 +293,23 @@ g_application_impl_method_call (GDBusConnection       *connection,
 
       g_variant_get (parameters, "(&sav@a{sv})", &name, &iter, &platform_data);
       g_variant_iter_next (iter, "v", &parameter);
+
+      if (g_variant_iter_n_children (iter) > 1)
+        {
+          GVariantBuilder extra_builder;
+          GVariant *value;
+
+          g_variant_builder_init (&extra_builder, G_VARIANT_TYPE_ARRAY);
+
+          while ((value = g_variant_iter_next_value (iter)))
+          {
+            g_variant_builder_add_value (&extra_builder, value);
+            g_variant_unref (value);
+          }
+
+          extra_parameter = g_variant_ref_sink (g_variant_builder_end (&extra_builder));
+        }
+
       g_variant_iter_free (iter);
 
       /* Check the action exists and the parameter type matches. */
@@ -302,6 +320,7 @@ g_application_impl_method_call (GDBusConnection       *connection,
           g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
                                                  "Unknown action ‘%s’", name);
           g_clear_pointer (&parameter, g_variant_unref);
+          g_clear_pointer (&extra_parameter, g_variant_unref);
           g_variant_unref (platform_data);
           return;
         }
@@ -315,13 +334,19 @@ g_application_impl_method_call (GDBusConnection       *connection,
                                                  (parameter_type != NULL) ? (const gchar *) parameter_type : "()",
                                                  (parameter != NULL) ? g_variant_get_type_string (parameter) : "()");
           g_clear_pointer (&parameter, g_variant_unref);
+          g_clear_pointer (&extra_parameter, g_variant_unref);
           g_variant_unref (platform_data);
           return;
         }
 
+
+      if (extra_parameter)
+        g_object_set_data_full (G_OBJECT (impl->app), "extra-parameter", extra_parameter, (GDestroyNotify) g_variant_unref);
       class->before_emit (impl->app, platform_data);
       g_action_group_activate_action (impl->exported_actions, name, parameter);
       class->after_emit (impl->app, platform_data);
+      if (extra_parameter)
+        g_object_set_data (G_OBJECT (impl->app), "extra-parameter", NULL);
 
       if (parameter)
         g_variant_unref (parameter);
