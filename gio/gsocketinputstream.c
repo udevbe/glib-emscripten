@@ -43,14 +43,14 @@ struct _GSocketInputStreamPrivate
 
 static void g_socket_input_stream_pollable_iface_init (GPollableInputStreamInterface *iface,
                                                        gpointer                       iface_data);
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#if defined(G_OS_UNIX)
 static void g_socket_input_stream_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface,
                                                                     gpointer                   iface_data);
 #endif
 
 #define g_socket_input_stream_get_type _g_socket_input_stream_get_type
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#if defined(G_OS_UNIX)
 G_DEFINE_TYPE_WITH_CODE (GSocketInputStream, g_socket_input_stream, G_TYPE_INPUT_STREAM,
                          G_ADD_PRIVATE (GSocketInputStream)
 			 G_IMPLEMENT_INTERFACE (G_TYPE_POLLABLE_INPUT_STREAM, g_socket_input_stream_pollable_iface_init)
