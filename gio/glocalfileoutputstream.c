@@ -44,11 +44,9 @@
 
 #ifdef G_OS_UNIX
 #include <unistd.h>
-#ifndef G_PLATFORM_WASM
 #include "gfiledescriptorbased.h"
 #include <sys/uio.h>
-#endif /* !G_PLATFORM_WASM */
-#endif /* G_OS_UNIX */
+#endif
 
 #include "glib-private.h"
 #include "gioprivate.h"
@@ -83,13 +81,16 @@ struct _GLocalFileOutputStreamPrivate {
   int fd;
 };
 
+#ifdef G_OS_UNIX
+static void       g_file_descriptor_based_iface_init   (GFileDescriptorBasedIface *iface,
+                                                        gpointer                   iface_data);
 #if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
 static void       g_file_descriptor_based_iface_init   (GFileDescriptorBasedIface *iface,
                                                         gpointer                   iface_data);
 #endif
 
 #define g_local_file_output_stream_get_type _g_local_file_output_stream_get_type
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 G_DEFINE_TYPE_WITH_CODE (GLocalFileOutputStream, g_local_file_output_stream, G_TYPE_FILE_OUTPUT_STREAM,
                          G_ADD_PRIVATE (GLocalFileOutputStream)
 			 G_IMPLEMENT_INTERFACE (G_TYPE_FILE_DESCRIPTOR_BASED,
@@ -111,7 +112,7 @@ static gssize     g_local_file_output_stream_write        (GOutputStream      *s
 							   gsize               count,
 							   GCancellable       *cancellable,
 							   GError            **error);
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static gboolean   g_local_file_output_stream_writev       (GOutputStream       *stream,
 							   const GOutputVector *vectors,
 							   gsize                n_vectors,
@@ -139,7 +140,7 @@ static gboolean   g_local_file_output_stream_truncate     (GFileOutputStream  *s
 							   goffset             size,
 							   GCancellable       *cancellable,
 							   GError            **error);
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static int        g_local_file_output_stream_get_fd       (GFileDescriptorBased *stream);
 #endif
 
@@ -168,7 +169,7 @@ g_local_file_output_stream_class_init (GLocalFileOutputStreamClass *klass)
   gobject_class->finalize = g_local_file_output_stream_finalize;
 
   stream_class->write_fn = g_local_file_output_stream_write;
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   stream_class->writev_fn = g_local_file_output_stream_writev;
 #endif
   stream_class->close_fn = g_local_file_output_stream_close;
@@ -181,7 +182,7 @@ g_local_file_output_stream_class_init (GLocalFileOutputStreamClass *klass)
   file_stream_class->truncate_fn = g_local_file_output_stream_truncate;
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static void
 g_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface,
                                     gpointer                   iface_data)
@@ -238,7 +239,7 @@ g_local_file_output_stream_write (GOutputStream  *stream,
  * things, that each chunk is the size of a whole page and in memory aligned
  * to a page. We can't possibly guarantee that in GLib.
  */
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 /* Macro to check if struct iovec and GOutputVector have the same ABI */
 #define G_OUTPUT_VECTOR_IS_IOVEC (sizeof (struct iovec) == sizeof (GOutputVector) && \
       G_SIZEOF_MEMBER (struct iovec, iov_base) == G_SIZEOF_MEMBER (GOutputVector, buffer) && \
@@ -1337,7 +1338,7 @@ _g_local_file_output_stream_get_fd (GLocalFileOutputStream *stream)
   return stream->priv->fd;
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static int
 g_local_file_output_stream_get_fd (GFileDescriptorBased *fd_based)
 {
