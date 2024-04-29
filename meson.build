@@ -333,6 +333,9 @@ if host_system == 'windows'
 elif host_system == 'cygwin'
   glib_os = '''#define G_OS_UNIX
 #define G_WITH_CYGWIN'''
+elif host_system == 'emscripten'
+  glib_os = '''#define G_OS_UNIX
+#define G_PLATFORM_WASM'''
 else
   glib_os = '#define G_OS_UNIX'
 endif
@@ -542,7 +545,7 @@ foreach m : struct_members
 endforeach
 
 # Compiler flags
-if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
+if cc.get_id() == 'gcc' or cc.get_id() == 'clang' or cc.get_id() == 'emscripten'
   warning_common_args = [
     '-Wduplicated-branches',
     '-Wimplicit-fallthrough',
@@ -1160,9 +1163,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
   glib_conf.set('HAVE_C99_SNPRINTF', false)
   glib_conf.set('HAVE_C99_VSNPRINTF', false)
   glib_conf.set('HAVE_UNIX98_PRINTF', false)
-elif not cc_can_run and host_system in ['ios', 'darwin']
-  # All these are true when compiling natively on macOS, so we should use good
-  # defaults when building for iOS and tvOS.
+elif not cc_can_run and host_system in ['ios', 'darwin', 'emscripten']
+  # All these are true when compiling natively on macOS, or when compiling with
+  # Emscripten (which uses musl libc internally).
   glib_conf.set('HAVE_C99_SNPRINTF', true)
   glib_conf.set('HAVE_C99_VSNPRINTF', true)
   glib_conf.set('HAVE_UNIX98_PRINTF', true)
@@ -1727,10 +1730,10 @@ g_sizet_compatibility = {
   'long long': sizet_size == long_long_size,
 }
 
-# Do separate checks for gcc/clang (and ignore other compilers for now), since
-# we need to explicitly pass -Werror to the compilers.
+# Do separate checks for gcc/clang/emscripten (and ignore other compilers for now),
+# since we need to explicitly pass -Werror to the compilers.
 # FIXME: https://github.com/mesonbuild/meson/issues/5399
-if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
+if cc.get_id() == 'gcc' or cc.get_id() == 'clang' or cc.get_id() == 'emscripten'
   foreach type_name, size_compatibility : g_sizet_compatibility
     g_sizet_compatibility += { type_name: size_compatibility and
       cc.compiles(
@@ -1815,6 +1818,8 @@ glibconfig_conf.set('gssizebits', ssizet_size * 8)
 # XXX: https://gitlab.gnome.org/GNOME/glib/issues/1413
 if host_system == 'windows'
   g_module_suffix = 'dll'
+elif host_system == 'emscripten'
+  g_module_suffix = 'wasm'
 else
   g_module_suffix = 'so'
 endif
@@ -2021,8 +2026,8 @@ atomicdefine = '''
 # We know that we can always use real ("lock free") atomic operations with MSVC
 if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
   have_atomic_lock_free = true
-  if cc.get_id() == 'gcc' and not cc.compiles(atomicdefine, name : 'atomic ops define')
-    # Old gcc release may provide
+  if (cc.get_id() == 'gcc' or host_system == 'emscripten') and not cc.compiles(atomicdefine, name : 'atomic ops define')
+    # Some old releases of GCC or Emscripten provides
     # __sync_bool_compare_and_swap but doesn't define
     # __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
     glib_conf.set('__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4', true)

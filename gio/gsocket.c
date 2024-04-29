@@ -159,12 +159,14 @@
  * Since: 2.22
  */
 
-static void     g_socket_initable_iface_init (GInitableIface  *iface);
+static void     g_socket_initable_iface_init (GInitableIface  *iface,
+                                              gpointer         iface_data);
 static gboolean g_socket_initable_init       (GInitable       *initable,
 					      GCancellable    *cancellable,
 					      GError         **error);
 
-static void     g_socket_datagram_based_iface_init       (GDatagramBasedInterface *iface);
+static void     g_socket_datagram_based_iface_init       (GDatagramBasedInterface *iface,
+                                                          gpointer                 iface_data);
 static gint     g_socket_datagram_based_receive_messages (GDatagramBased  *self,
                                                           GInputMessage   *messages,
                                                           guint            num_messages,
@@ -1169,13 +1171,15 @@ g_socket_class_init (GSocketClass *klass)
 }
 
 static void
-g_socket_initable_iface_init (GInitableIface *iface)
+g_socket_initable_iface_init (GInitableIface *iface,
+                              gpointer        iface_data)
 {
   iface->init = g_socket_initable_init;
 }
 
 static void
-g_socket_datagram_based_iface_init (GDatagramBasedInterface *iface)
+g_socket_datagram_based_iface_init (GDatagramBasedInterface *iface,
+                                    gpointer                 iface_data)
 {
   iface->receive_messages = g_socket_datagram_based_receive_messages;
   iface->send_messages = g_socket_datagram_based_send_messages;

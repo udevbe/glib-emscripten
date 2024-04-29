@@ -46,7 +46,8 @@
  * To position a file input stream, use [vfunc@Gio.Seekable.seek].
  **/
 
-static void       g_file_input_stream_seekable_iface_init    (GSeekableIface       *iface);
+static void       g_file_input_stream_seekable_iface_init    (GSeekableIface       *iface,
+                                                              gpointer              iface_data);
 static goffset    g_file_input_stream_seekable_tell          (GSeekable            *seekable);
 static gboolean   g_file_input_stream_seekable_can_seek      (GSeekable            *seekable);
 static gboolean   g_file_input_stream_seekable_seek          (GSeekable            *seekable,
@@ -87,7 +88,8 @@ g_file_input_stream_class_init (GFileInputStreamClass *klass)
 }
 
 static void
-g_file_input_stream_seekable_iface_init (GSeekableIface *iface)
+g_file_input_stream_seekable_iface_init (GSeekableIface *iface,
+                                         gpointer        iface_data)
 {
   iface->tell = g_file_input_stream_seekable_tell;
   iface->can_seek = g_file_input_stream_seekable_can_seek;

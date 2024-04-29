@@ -48,7 +48,8 @@ enum {
  * decompresses data compressed with zlib.
  */
 
-static void g_zlib_decompressor_iface_init          (GConverterIface *iface);
+static void g_zlib_decompressor_iface_init          (GConverterIface *iface,
+                                                     gpointer         iface_data);
 
 typedef struct {
   gz_header gzheader;
@@ -407,7 +408,8 @@ g_zlib_decompressor_convert (GConverter *converter,
 }
 
 static void
-g_zlib_decompressor_iface_init (GConverterIface *iface)
+g_zlib_decompressor_iface_init (GConverterIface *iface,
+                                gpointer         iface_data)
 {
   iface->convert = g_zlib_decompressor_convert;
   iface->reset = g_zlib_decompressor_reset;

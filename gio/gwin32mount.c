@@ -97,7 +97,8 @@ struct _GWin32Mount {
   gboolean can_eject;
 };
 
-static void g_win32_mount_mount_iface_init (GMountIface *iface);
+static void g_win32_mount_mount_iface_init (GMountIface *iface,
+                                            gpointer     iface_data)
 
 #define g_win32_mount_get_type _g_win32_mount_get_type
 G_DEFINE_TYPE_WITH_CODE (GWin32Mount, g_win32_mount, G_TYPE_OBJECT,
@@ -525,7 +526,8 @@ g_win32_mount_eject_finish (GMount        *mount,
 }
 
 static void
-g_win32_mount_mount_iface_init (GMountIface *iface)
+g_win32_mount_mount_iface_init (GMountIface *iface,
+                                gpointer     iface_data)
 {
   iface->get_root = g_win32_mount_get_root;
   iface->get_name = g_win32_mount_get_name;

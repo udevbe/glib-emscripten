@@ -59,7 +59,8 @@ enum
   PROP_FAMILY
 };
 
-static void                      g_socket_address_connectable_iface_init       (GSocketConnectableIface *iface);
+static void                      g_socket_address_connectable_iface_init       (GSocketConnectableIface *iface,
+                                                                                gpointer                 iface_data);
 static GSocketAddressEnumerator *g_socket_address_connectable_enumerate	       (GSocketConnectable      *connectable);
 static GSocketAddressEnumerator *g_socket_address_connectable_proxy_enumerate  (GSocketConnectable      *connectable);
 
@@ -125,7 +126,8 @@ g_socket_address_class_init (GSocketAddressClass *klass)
 }
 
 static void
-g_socket_address_connectable_iface_init (GSocketConnectableIface *connectable_iface)
+g_socket_address_connectable_iface_init (GSocketConnectableIface *connectable_iface,
+                                         gpointer                 iface_data)
 {
   connectable_iface->enumerate  = g_socket_address_connectable_enumerate;
   connectable_iface->proxy_enumerate  = g_socket_address_connectable_proxy_enumerate;

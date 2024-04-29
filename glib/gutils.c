@@ -1679,6 +1679,11 @@ g_get_os_info (const gchar *key_name)
     return g_strdup ("macOS");
   else
     return NULL;
+#elif defined (G_PLATFORM_WASM)
+  if (g_strcmp0 (key_name, G_OS_INFO_KEY_NAME) == 0)
+    return g_strdup ("wasm");
+  else
+    return NULL;
 #elif defined (G_OS_UNIX)
   const gchar * const os_release_files[] = { "/etc/os-release", "/usr/lib/os-release" };
   gsize i;

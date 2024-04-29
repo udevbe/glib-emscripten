@@ -34,8 +34,10 @@
 #include "gnetworkmonitor.h"
 #include "gdbusproxy.h"
 
-static void g_network_monitor_nm_iface_init (GNetworkMonitorInterface *iface);
-static void g_network_monitor_nm_initable_iface_init (GInitableIface *iface);
+static void g_network_monitor_nm_iface_init (GNetworkMonitorInterface *iface,
+                                             gpointer                  iface_data);
+static void g_network_monitor_nm_initable_iface_init (GInitableIface *iface,
+                                                      gpointer        iface_data);
 
 enum
 {
@@ -365,12 +367,14 @@ g_network_monitor_nm_class_init (GNetworkMonitorNMClass *nl_class)
 }
 
 static void
-g_network_monitor_nm_iface_init (GNetworkMonitorInterface *monitor_iface)
+g_network_monitor_nm_iface_init (GNetworkMonitorInterface *monitor_iface,
+                                 gpointer                  iface_data)
 {
 }
 
 static void
-g_network_monitor_nm_initable_iface_init (GInitableIface *iface)
+g_network_monitor_nm_initable_iface_init (GInitableIface *iface,
+                                          gpointer        iface_data)
 {
   iface->init = g_network_monitor_nm_initable_init;
 }

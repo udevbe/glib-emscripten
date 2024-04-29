@@ -1855,7 +1855,9 @@ g_time_zone_new_identifier (const gchar *identifier)
   else
     {
       G_LOCK (tz_default);
-#ifdef G_OS_UNIX
+#ifdef G_PLATFORM_WASM
+      resolved_identifier = g_strdup ("UTC0");
+#elif defined (G_OS_UNIX)
       resolved_identifier = zone_identifier_unix ();
 #elif defined (G_OS_WIN32)
       resolved_identifier = windows_default_tzname ();

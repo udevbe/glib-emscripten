@@ -180,7 +180,8 @@ g_local_file_output_stream_class_init (GLocalFileOutputStreamClass *klass)
 
 #ifdef G_OS_UNIX
 static void
-g_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface)
+g_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface,
+                                    gpointer                   iface_data)
 {
   iface->get_fd = g_local_file_output_stream_get_fd;
 }

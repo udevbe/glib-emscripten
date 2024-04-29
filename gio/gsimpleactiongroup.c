@@ -42,8 +42,10 @@ struct _GSimpleActionGroupPrivate
   GHashTable *table;  /* string -> GAction */
 };
 
-static void g_simple_action_group_iface_init (GActionGroupInterface *);
-static void g_simple_action_group_map_iface_init (GActionMapInterface *);
+static void g_simple_action_group_iface_init (GActionGroupInterface *iface,
+                                              gpointer               iface_data);
+static void g_simple_action_group_map_iface_init (GActionMapInterface *iface,
+                                                  gpointer             iface_data);
 G_DEFINE_TYPE_WITH_CODE (GSimpleActionGroup,
   g_simple_action_group, G_TYPE_OBJECT,
   G_ADD_PRIVATE (GSimpleActionGroup)
@@ -274,7 +276,8 @@ g_simple_action_group_class_init (GSimpleActionGroupClass *class)
 }
 
 static void
-g_simple_action_group_iface_init (GActionGroupInterface *iface)
+g_simple_action_group_iface_init (GActionGroupInterface *iface,
+                                  gpointer               iface_data)
 {
   iface->list_actions = g_simple_action_group_list_actions;
   iface->query_action = g_simple_action_group_query_action;
@@ -283,7 +286,8 @@ g_simple_action_group_iface_init (GActionGroupInterface *iface)
 }
 
 static void
-g_simple_action_group_map_iface_init (GActionMapInterface *iface)
+g_simple_action_group_map_iface_init (GActionMapInterface *iface,
+                                      gpointer             iface_data)
 {
   iface->add_action = g_simple_action_group_add_action;
   iface->remove_action = g_simple_action_group_remove_action;
