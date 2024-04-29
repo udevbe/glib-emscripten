@@ -41,26 +41,28 @@ network_libs = [ ]
 network_args = [ ]
 if host_system != 'windows'
   # res_query()
-  res_query_test = '''#include <resolv.h>
-                      int main (int argc, char ** argv) {
-                        return res_query("test", 0, 0, (void *)0, 0);
-                      }'''
-  res_query_test_full = '''#include <sys/types.h>
-                           #include <netinet/in.h>
-                           #include <arpa/nameser.h>
-                        ''' + res_query_test
-  if not cc.links(res_query_test_full, name : 'res_query()')
-    if cc.links(res_query_test_full, args : '-lresolv', name : 'res_query() in -lresolv')
-      network_libs += [ cc.find_library('resolv') ]
-      network_args += [ '-lresolv' ]
-    elif cc.links(res_query_test, args : '-lbind', name : 'res_query() in -lbind')
-      network_libs += [ cc.find_library('bind') ]
-      network_args += [ '-lbind' ]
-    elif cc.links(res_query_test, args : '-lsocket', name : 'res_query() in -lsocket')
-      network_libs += [ cc.find_library('socket') ]
-      network_args += [ '-lsocket' ]
-    else
-      error('Could not find res_query()')
+  if host_system != 'emscripten'
+    res_query_test = '''#include <resolv.h>
+                        int main (int argc, char ** argv) {
+                          return res_query("test", 0, 0, (void *)0, 0);
+                        }'''
+    res_query_test_full = '''#include <sys/types.h>
+                             #include <netinet/in.h>
+                             #include <arpa/nameser.h>
+                          ''' + res_query_test
+    if not cc.links(res_query_test_full, name : 'res_query()')
+      if cc.links(res_query_test_full, args : '-lresolv', name : 'res_query() in -lresolv')
+        network_libs += [ cc.find_library('resolv') ]
+        network_args += [ '-lresolv' ]
+      elif cc.links(res_query_test, args : '-lbind', name : 'res_query() in -lbind')
+        network_libs += [ cc.find_library('bind') ]
+        network_args += [ '-lbind' ]
+      elif cc.links(res_query_test, args : '-lsocket', name : 'res_query() in -lsocket')
+        network_libs += [ cc.find_library('socket') ]
+        network_args += [ '-lsocket' ]
+      else
+        error('Could not find res_query()')
+      endif
     endif
   endif
 
