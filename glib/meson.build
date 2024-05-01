@@ -370,6 +370,8 @@ if host_system == 'windows'
   if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl'
     glib_sources += files('dirent/wdirent.c')
   endif
+elif host_system == 'emscripten'
+  glib_sources += files('glib-unix.c', 'gspawn-wasm.c', 'giounix.c')
 else
   glib_sources += files('glib-unix.c', 'gspawn.c', 'giounix.c')
   platform_deps = []
