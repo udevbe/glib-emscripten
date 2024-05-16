@@ -75,7 +75,7 @@ enum
 
 static guint signals[LAST_SIGNAL] = {0};
 
-static void     dbus_interface_interface_init                      (GDBusInterfaceIface    *iface);
+static void     dbus_interface_interface_init                      (GDBusInterfaceIface    *iface, gpointer iface_data);
 
 static void     set_object_path_locked                             (GDBusInterfaceSkeleton *interface_,
                                                                     const gchar            *object_path);
