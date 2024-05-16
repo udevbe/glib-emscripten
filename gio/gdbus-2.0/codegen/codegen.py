@@ -4453,9 +4453,9 @@ class CodeGenerator:
             "%s_skeleton_iface_init (%sIface *iface" % (i.name_lower, i.camel_name)
         )
         if len(i.signals) == 0 and len(i.properties) == 0:
-            self.outfile.write(" G_GNUC_UNUSED)\n")
+            self.outfile.write(" G_GNUC_UNUSED, gpointer iface_data)\n")
         else:
-            self.outfile.write(")\n")
+            self.outfile.write(", gpointer iface_data)\n")
         self.outfile.write("{\n")
         for s in i.signals:
             self.outfile.write(
