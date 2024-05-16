@@ -31,7 +31,7 @@
 
 #include "gsocket.h"
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 #include "glib-unix.h"
 #endif
 
@@ -54,7 +54,7 @@
 # include <sys/filio.h>
 #endif
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 #include <sys/uio.h>
 #endif
 
@@ -608,9 +608,9 @@ g_socket_details_from_fd (GSocket *socket)
 static void
 socket_set_nonblock (int fd)
 {
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifndef G_OS_WIN32
   GError *error = NULL;
-#elif defined(G_OS_WIN32)
+#else
   gulong arg;
 #endif
 
@@ -618,13 +618,13 @@ socket_set_nonblock (int fd)
    * nonblocking automatically in certain operations. This way we make
    * things work the same on all platforms.
    */
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifndef G_OS_WIN32
   if (!g_unix_set_fd_nonblocking (fd, TRUE, &error))
     {
       g_warning ("Error setting socket to nonblocking mode: %s", error->message);
       g_clear_error (&error);
     }
-#elif defined(G_OS_WIN32)
+#else
   arg = TRUE;
 
   if (ioctlsocket (fd, FIONBIO, &arg) == SOCKET_ERROR)
@@ -4246,9 +4246,7 @@ socket_source_dispatch (GSource     *source,
     events = G_IO_NVAL;
   else
     events = update_condition (socket_source->socket);
-#elif defined(G_PLATFORM_WASM)
-  events = G_IO_NVAL;
-#elif defined(G_OS_UNIX)
+#else
   if (g_socket_is_closed (socket_source->socket))
     {
       if (socket_source->fd_tag)
@@ -4386,7 +4384,7 @@ socket_source_new (GSocket      *socket,
   socket_source->pollfd.events = condition;
   socket_source->pollfd.revents = 0;
   g_source_add_poll (source, &socket_source->pollfd);
-#elif defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#else
   socket_source->fd_tag = g_source_add_unix_fd (source, socket->priv->fd, condition);
 #endif
 

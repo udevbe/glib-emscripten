@@ -27,7 +27,7 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#ifdef G_OS_UNIX
+#if G_OS_UNIX
 #include <dirent.h>
 #include <unistd.h>
 #endif
@@ -69,7 +69,7 @@
 #include <glib/gstdio.h>
 #include <glib/gstdioprivate.h>
 #include "glibintl.h"
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 #include "glib-unix.h"
 #include "gportalsupport.h"
 #include "gtrashportal.h"
@@ -759,7 +759,7 @@ get_fs_type (long f_type)
 }
 #endif
 
-#if !defined(G_OS_WIN32) && !defined(G_PLATFORM_WASM)
+#ifndef G_OS_WIN32
 
 G_LOCK_DEFINE_STATIC(mount_info_hash);
 static GHashTable *mount_info_hash = NULL;
@@ -1103,7 +1103,6 @@ g_local_file_query_filesystem_info (GFile         *file,
     g_file_info_set_attribute_string (info, G_FILE_ATTRIBUTE_FILESYSTEM_TYPE, fstype);
 #endif /* G_OS_WIN32 */
 
-#ifndef G_PLATFORM_WASM
   if (g_file_attribute_matcher_matches (attribute_matcher,
                                         G_FILE_ATTRIBUTE_FILESYSTEM_READONLY) ||
       g_file_attribute_matcher_matches (attribute_matcher,
@@ -1115,7 +1114,6 @@ g_local_file_query_filesystem_info (GFile         *file,
       get_mount_info (info, local->filename, attribute_matcher);
 #endif /* G_OS_WIN32 */
     }
-#endif /* !G_PLATFORM_WASM */
 
   g_file_attribute_matcher_unref (attribute_matcher);
   
@@ -1127,7 +1125,6 @@ g_local_file_find_enclosing_mount (GFile         *file,
                                    GCancellable  *cancellable,
                                    GError       **error)
 {
-#ifndef G_PLATFORM_WASM
   GLocalFile *local = G_LOCAL_FILE (file);
   GStatBuf buf;
   char *mountpoint;
@@ -1146,7 +1143,6 @@ g_local_file_find_enclosing_mount (GFile         *file,
     return mount;
 
 error:
-#endif
   g_set_io_error (error,
 		  /* Translators: This is an error message when trying to find
 		   * the enclosing (user visible) mount of a file, but none
@@ -1530,7 +1526,7 @@ g_local_file_delete (GFile         *file,
   return TRUE;
 }
 
-#if !defined(G_OS_WIN32) && !defined(G_PLATFORM_WASM)
+#ifndef G_OS_WIN32
 
 static char *
 strip_trailing_slashes (const char *path)
@@ -1939,6 +1935,7 @@ _g_local_file_has_trash_dir (const char *dirname, dev_t dir_dev)
   return res;
 }
 
+#ifndef G_OS_WIN32
 gboolean
 _g_local_file_is_lost_found_dir (const char *path, dev_t path_dev)
 {
@@ -1977,6 +1974,7 @@ _g_local_file_is_lost_found_dir (const char *path, dev_t path_dev)
   g_free (mount_dir);
   return ret;
 }
+#endif
 
 static gboolean
 g_local_file_trash (GFile         *file,
@@ -2352,7 +2350,7 @@ g_local_file_trash (GFile         *file,
   
   return TRUE;
 }
-#elif defined(G_OS_WIN32)
+#else /* G_OS_WIN32 */
 gboolean
 _g_local_file_has_trash_dir (const char *dirname, dev_t dir_dev)
 {
@@ -2398,24 +2396,7 @@ g_local_file_trash (GFile         *file,
   g_free (wfilename);
   return success;
 }
-#else /* G_PLATFORM_WASM */
-gboolean
-_g_local_file_has_trash_dir (const char *dirname, dev_t dir_dev)
-{
-  return FALSE;
-}
-
-static gboolean
-g_local_file_trash (GFile         *file,
-		    GCancellable  *cancellable,
-		    GError       **error)
-{
-  g_set_io_error (error,
-                  _("g_local_file_trash is no-op on WebAssembly"),
-                  file, ENOTSUP);
-  return FALSE;
-}
-#endif /* G_PLATFORM_WASM */
+#endif /* G_OS_WIN32 */
 
 static gboolean
 g_local_file_make_directory (GFile         *file,
@@ -2619,7 +2600,7 @@ g_local_file_move (GFile                  *source,
   return TRUE;
 }
 
-#if defined(G_OS_WIN32) || defined(G_PLATFORM_WASM)
+#ifdef G_OS_WIN32
 
 gboolean
 g_local_file_is_nfs_home (const gchar *filename)
@@ -2683,7 +2664,7 @@ g_local_file_is_nfs_home (const gchar *filename)
 
   return FALSE;
 }
-#endif /* !G_OS_WIN32 && !G_PLATFORM_WASM */
+#endif /* !G_OS_WIN32 */
 
 static GFileMonitor*
 g_local_file_monitor_dir (GFile             *file,

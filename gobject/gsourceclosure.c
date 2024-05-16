@@ -25,7 +25,7 @@
 #include "gmarshal.h"
 #include "gvalue.h"
 #include "gvaluetypes.h"
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 #include "glib-unix.h"
 #endif
 
@@ -119,7 +119,7 @@ g_child_watch_closure_callback (GPid     pid,
 
   g_value_init (&result_value, G_TYPE_BOOLEAN);
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   g_value_init (&params[0], G_TYPE_ULONG);
   g_value_set_ulong (&params[0], pid);
 #endif
@@ -141,7 +141,7 @@ g_child_watch_closure_callback (GPid     pid,
   return result;
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static gboolean
 g_unix_fd_source_closure_callback (int           fd,
                                    GIOCondition  condition,
@@ -199,18 +199,16 @@ closure_callback_get (gpointer     cb_data,
 
   if (!closure_callback)
     {
-      if (source->source_funcs == &g_child_watch_funcs)
-        closure_callback = (GSourceFunc)g_child_watch_closure_callback;
-#ifndef G_PLATFORM_WASM
-      else if (source->source_funcs == &g_io_watch_funcs)
+      if (source->source_funcs == &g_io_watch_funcs)
         closure_callback = (GSourceFunc)io_watch_closure_callback;
-#endif
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+      else if (source->source_funcs == &g_child_watch_funcs)
+        closure_callback = (GSourceFunc)g_child_watch_closure_callback;
+#ifdef G_OS_UNIX
       else if (source->source_funcs == &g_unix_fd_source_funcs)
         closure_callback = (GSourceFunc)g_unix_fd_source_closure_callback;
 #endif
       else if (source->source_funcs == &g_timeout_funcs ||
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
                source->source_funcs == &g_unix_signal_funcs ||
 #endif
                source->source_funcs == &g_idle_funcs)
@@ -253,14 +251,12 @@ g_source_set_closure (GSource  *source,
   g_return_if_fail (closure != NULL);
 
   if (!source->source_funcs->closure_callback &&
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
       source->source_funcs != &g_unix_fd_source_funcs &&
       source->source_funcs != &g_unix_signal_funcs &&
 #endif
       source->source_funcs != &g_child_watch_funcs &&
-#ifndef G_PLATFORM_WASM
       source->source_funcs != &g_io_watch_funcs &&
-#endif
       source->source_funcs != &g_timeout_funcs &&
       source->source_funcs != &g_idle_funcs)
     {
@@ -280,7 +276,7 @@ g_source_set_closure (GSource  *source,
       if (marshal)
 	g_closure_set_marshal (closure, marshal);
       else if (source->source_funcs == &g_idle_funcs ||
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
                source->source_funcs == &g_unix_signal_funcs ||
 #endif
                source->source_funcs == &g_timeout_funcs)

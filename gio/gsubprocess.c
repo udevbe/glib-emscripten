@@ -91,7 +91,7 @@
 #include "glib-private.h"
 
 #include <string.h>
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 #include <gio/gunixoutputstream.h>
 #include <gio/gfiledescriptorbased.h>
 #include <gio/gunixinputstream.h>
@@ -103,14 +103,6 @@
 #include <windows.h>
 #include <io.h>
 #include "giowin32-priv.h"
-#endif
-#ifdef G_PLATFORM_WASM
-#include <gio/gioenumtypes.h>
-#include <gio/ginitable.h>
-#include <gio/gtask.h>
-#include <gio/gmemoryinputstream.h>
-#include <gio/gmemoryoutputstream.h>
-#include <unistd.h>
 #endif
 
 #ifndef O_BINARY
@@ -195,9 +187,7 @@ platform_input_stream_from_spawn_fd (gint fd)
   if (fd < 0)
     return NULL;
 
-#ifdef G_PLATFORM_WASM
-  return NULL;
-#elif defined(G_OS_UNIX)
+#ifdef G_OS_UNIX
   return g_unix_input_stream_new (fd, TRUE);
 #else
   return g_win32_input_stream_new_from_fd (fd, TRUE);
@@ -210,16 +200,14 @@ platform_output_stream_from_spawn_fd (gint fd)
   if (fd < 0)
     return NULL;
 
-#ifdef G_PLATFORM_WASM
-  return NULL;
-#elif defined(G_OS_UNIX)
+#ifdef G_OS_UNIX
   return g_unix_output_stream_new (fd, TRUE);
 #else
   return g_win32_output_stream_new_from_fd (fd, TRUE);
 #endif
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static gint
 unix_open_file (const char  *filename,
                 gint         mode,
@@ -313,7 +301,7 @@ initable_init (GInitable     *initable,
   gint *pipe_ptrs[3] = { NULL, NULL, NULL };
   gint pipe_fds[3] = { -1, -1, -1 };
   gint close_fds[3] = { -1, -1, -1 };
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   gint stdin_fd = -1, stdout_fd = -1, stderr_fd = -1;
 #endif
   GSpawnFlags spawn_flags = 0;
@@ -336,7 +324,7 @@ initable_init (GInitable     *initable,
     spawn_flags |= G_SPAWN_CHILD_INHERITS_STDIN;
   else if (self->flags & G_SUBPROCESS_FLAGS_STDIN_PIPE)
     pipe_ptrs[0] = &pipe_fds[0];
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   else if (self->launcher)
     {
       if (self->launcher->stdin_fd != -1)
@@ -355,7 +343,7 @@ initable_init (GInitable     *initable,
     spawn_flags |= G_SPAWN_STDOUT_TO_DEV_NULL;
   else if (self->flags & G_SUBPROCESS_FLAGS_STDOUT_PIPE)
     pipe_ptrs[1] = &pipe_fds[1];
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   else if (self->launcher)
     {
       if (self->launcher->stdout_fd != -1)
@@ -374,7 +362,7 @@ initable_init (GInitable     *initable,
     spawn_flags |= G_SPAWN_STDERR_TO_DEV_NULL;
   else if (self->flags & G_SUBPROCESS_FLAGS_STDERR_PIPE)
     pipe_ptrs[2] = &pipe_fds[2];
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   else if (self->flags & G_SUBPROCESS_FLAGS_STDERR_MERGE)
     /* This will work because stderr gets set up after stdout. */
     stderr_fd = 1;
@@ -410,7 +398,7 @@ initable_init (GInitable     *initable,
                                               (const gchar * const *) self->argv,
                                               (const gchar * const *) (self->launcher ? self->launcher->envp : NULL),
                                               spawn_flags,
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
                                               self->launcher ? self->launcher->child_setup_func : NULL,
                                               self->launcher ? self->launcher->child_setup_user_data : NULL,
                                               stdin_fd, stdout_fd, stderr_fd,
@@ -454,7 +442,7 @@ initable_init (GInitable     *initable,
       g_source_unref (source);
     }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 out:
 #endif
   /* we don't need this past init... */
@@ -975,7 +963,7 @@ g_subprocess_wait_check_finish (GSubprocess   *subprocess,
          g_spawn_check_wait_status (subprocess->status, error);
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 typedef struct
 {
   GSubprocess *subprocess;
@@ -1070,9 +1058,9 @@ g_subprocess_force_exit (GSubprocess *subprocess)
 {
   g_return_if_fail (G_IS_SUBPROCESS (subprocess));
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   g_subprocess_dispatch_signal (subprocess, SIGKILL);
-#elif defined(G_OS_WIN32)
+#else
   TerminateProcess (subprocess->pid, 1);
 #endif
 }
@@ -1127,7 +1115,7 @@ g_subprocess_get_successful (GSubprocess *subprocess)
   g_return_val_if_fail (G_IS_SUBPROCESS (subprocess), FALSE);
   g_return_val_if_fail (subprocess->pid == 0, FALSE);
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   return WIFEXITED (subprocess->status) && WEXITSTATUS (subprocess->status) == 0;
 #else
   return subprocess->status == 0;
@@ -1156,7 +1144,7 @@ g_subprocess_get_if_exited (GSubprocess *subprocess)
   g_return_val_if_fail (G_IS_SUBPROCESS (subprocess), FALSE);
   g_return_val_if_fail (subprocess->pid == 0, FALSE);
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   return WIFEXITED (subprocess->status);
 #else
   return TRUE;
@@ -1186,7 +1174,7 @@ g_subprocess_get_exit_status (GSubprocess *subprocess)
   g_return_val_if_fail (G_IS_SUBPROCESS (subprocess), 1);
   g_return_val_if_fail (subprocess->pid == 0, 1);
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   g_return_val_if_fail (WIFEXITED (subprocess->status), 1);
 
   return WEXITSTATUS (subprocess->status);
@@ -1216,7 +1204,7 @@ g_subprocess_get_if_signaled (GSubprocess *subprocess)
   g_return_val_if_fail (G_IS_SUBPROCESS (subprocess), FALSE);
   g_return_val_if_fail (subprocess->pid == 0, FALSE);
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   return WIFSIGNALED (subprocess->status);
 #else
   return FALSE;
@@ -1245,12 +1233,12 @@ g_subprocess_get_term_sig (GSubprocess *subprocess)
   g_return_val_if_fail (G_IS_SUBPROCESS (subprocess), 0);
   g_return_val_if_fail (subprocess->pid == 0, 0);
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   g_return_val_if_fail (WIFSIGNALED (subprocess->status), 0);
 
   return WTERMSIG (subprocess->status);
 #else
-  g_critical ("g_subprocess_get_term_sig() called on Windows or Wasm, where "
+  g_critical ("g_subprocess_get_term_sig() called on Windows, where "
               "g_subprocess_get_if_signaled() always returns FALSE...");
   return 0;
 #endif
@@ -1465,7 +1453,7 @@ g_subprocess_communicate_internal (GSubprocess         *subprocess,
     {
       g_assert (stdin_buf != NULL);
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
       /* We're doing async writes to the pipe, and the async write mechanism assumes
        * that streams polling as writable do SOME progress (possibly partial) and then
        * stop, but never block.

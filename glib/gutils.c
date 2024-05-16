@@ -1522,7 +1522,7 @@ get_windows_version (gboolean with_windows)
 }
 #endif
 
-#if defined (G_OS_UNIX) && !defined (__APPLE__) && !defined (G_PLATFORM_WASM)
+#if defined (G_OS_UNIX) && !defined (__APPLE__)
 static gchar *
 get_os_info_from_os_release (const gchar *key_name,
                              const gchar *buffer)

@@ -37,11 +37,9 @@
 
 #ifdef G_OS_UNIX
 #include <unistd.h>
-#ifndef G_PLATFORM_WASM
 #include "glib-unix.h"
 #include "gfiledescriptorbased.h"
-#endif /* !G_PLATFORM_WASM */
-#endif /* G_OS_UNIX */
+#endif
 
 #ifdef G_OS_WIN32
 #include <io.h>
@@ -52,13 +50,12 @@ struct _GLocalFileInputStreamPrivate {
   guint do_close : 1;
 };
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
-static void       g_file_descriptor_based_iface_init   (GFileDescriptorBasedIface *iface,
-                                                        gpointer                   iface_data);
+#ifdef G_OS_UNIX
+static void       g_file_descriptor_based_iface_init   (GFileDescriptorBasedIface *iface);
 #endif
 
 #define g_local_file_input_stream_get_type _g_local_file_input_stream_get_type
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 G_DEFINE_TYPE_WITH_CODE (GLocalFileInputStream, g_local_file_input_stream, G_TYPE_FILE_INPUT_STREAM,
                          G_ADD_PRIVATE (GLocalFileInputStream)
 			 G_IMPLEMENT_INTERFACE (G_TYPE_FILE_DESCRIPTOR_BASED,
@@ -87,7 +84,7 @@ static GFileInfo *g_local_file_input_stream_query_info (GFileInputStream  *strea
 							const char        *attributes,
 							GCancellable      *cancellable,
 							GError           **error);
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static int        g_local_file_input_stream_get_fd     (GFileDescriptorBased *stream);
 #endif
 
@@ -112,7 +109,7 @@ g_local_file_input_stream_class_init (GLocalFileInputStreamClass *klass)
   file_stream_class->query_info = g_local_file_input_stream_query_info;
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static void
 g_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface,
                                     gpointer                   iface_data)
@@ -301,7 +298,7 @@ g_local_file_input_stream_query_info (GFileInputStream  *stream,
 					 error);
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static int
 g_local_file_input_stream_get_fd (GFileDescriptorBased *fd_based)
 {

@@ -48,7 +48,7 @@ struct _GSocketOutputStreamPrivate
 
 static void g_socket_output_stream_pollable_iface_init (GPollableOutputStreamInterface *iface,
                                                         gpointer                        iface_data);
-#if defined(G_OS_UNIX)
+#ifdef G_OS_UNIX
 static void g_socket_output_stream_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface,
                                                                      gpointer                   iface_data);
 #endif
@@ -225,7 +225,7 @@ g_socket_output_stream_pollable_create_source (GPollableOutputStream *pollable,
   return pollable_source;
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static int
 g_socket_output_stream_get_fd (GFileDescriptorBased *fd_based)
 {
@@ -254,7 +254,7 @@ g_socket_output_stream_class_init (GSocketOutputStreamClass *klass)
 							G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static void
 g_socket_output_stream_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface,
                                                          gpointer                   iface_data)

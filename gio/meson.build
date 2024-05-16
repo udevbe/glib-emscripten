@@ -39,7 +39,7 @@ endif
 
 network_libs = [ ]
 network_args = [ ]
-if host_system not in ['windows', 'emscripten']
+if host_system != 'windows'
   # res_query()
   if host_system != 'emscripten'
     res_query_test = '''#include <resolv.h>
@@ -354,7 +354,7 @@ gdbus_daemon_sources = [
   gdbus_daemon_generated,
 ]
 
-if host_system not in ['windows', 'emscripten']
+if host_system != 'windows'
   unix_sources = files(
     'gfiledescriptorbased.c',
     'giounix-private.c',
@@ -419,7 +419,7 @@ if host_system not in ['windows', 'emscripten']
       'gnetworkmonitornm.c',
     )
   endif
-elif host_system == 'windows'
+else
   win32_sources += files('gwin32appinfo.c')
   contenttype_sources += files('gcontenttype-win32.c')
   platform_deps += [cc.find_library('shlwapi'),
@@ -461,8 +461,6 @@ elif host_system == 'windows'
     'gwin32outputstream.h',
   )
   install_headers(gio_win32_include_headers, subdir : 'gio-win32-2.0/gio')
-elif host_system == 'emscripten'
-  contenttype_sources += files('gcontenttype-wasm.c')
 endif
 
 gio_base_sources = files(
@@ -903,7 +901,7 @@ if host_system == 'windows'
     description : 'Windows specific headers for glib I/O library',
   )
   meson.override_dependency('gio-windows-2.0', libgio_dep)
-elif host_system != 'emscripten'
+else
   pkg.generate(requires : ['gobject-2.0', 'gio-2.0'],
     subdirs : ['gio-unix-2.0'],
     version : glib_version,

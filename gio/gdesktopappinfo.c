@@ -42,7 +42,7 @@
 
 #include "gcontenttypeprivate.h"
 #include "gdesktopappinfo.h"
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 #include "glib-unix.h"
 #endif
 #include "gfile.h"
@@ -58,7 +58,7 @@
 #include "glocalfilemonitor.h"
 #include "gutilsprivate.h"
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 #include "gdocumentportal.h"
 #endif
 
@@ -3276,7 +3276,7 @@ g_desktop_app_info_launch_uris_with_dbus (GDesktopAppInfo    *info,
 
   g_return_val_if_fail (info != NULL, FALSE);
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
   app_id = g_desktop_app_info_get_string (info, "X-Flatpak");
   if (app_id && *app_id)
     {

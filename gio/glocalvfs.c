@@ -28,7 +28,7 @@
 #include "gvfs.h"
 #include <gio/gdummyfile.h>
 #include <sys/types.h>
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 #include "glib-unix.h"
 #include <pwd.h>
 #endif
@@ -134,7 +134,7 @@ g_local_vfs_parse_name (GVfs       *vfs,
     {
       if (*parse_name == '~')
 	{
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 	  const char *user_start;
 	  user_start = parse_name + 1;
 #endif
@@ -145,7 +145,7 @@ g_local_vfs_parse_name (GVfs       *vfs,
 	  
 	  user_end = parse_name;
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 	  if (user_end == user_start)
 	    user_prefix = g_strdup (g_get_home_dir ());
 	  else
