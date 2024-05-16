@@ -106,7 +106,7 @@ enum
   PROP_OBJECT_PATH
 };
 
-static void dbus_object_manager_interface_init (GDBusObjectManagerIface *iface);
+static void dbus_object_manager_interface_init (GDBusObjectManagerIface *iface, gpointer iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (GDBusObjectManagerServer, g_dbus_object_manager_server, G_TYPE_OBJECT,
                          G_ADD_PRIVATE (GDBusObjectManagerServer)
@@ -1086,7 +1086,7 @@ g_dbus_object_manager_server_get_interface  (GDBusObjectManager  *_manager,
 }
 
 static void
-dbus_object_manager_interface_init (GDBusObjectManagerIface *iface)
+dbus_object_manager_interface_init (GDBusObjectManagerIface *iface, gpointer iface_data)
 {
   iface->get_object_path = g_dbus_object_manager_server_get_object_path;
   iface->get_objects     = g_dbus_object_manager_server_get_objects;

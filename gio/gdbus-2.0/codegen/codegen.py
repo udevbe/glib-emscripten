@@ -3094,7 +3094,7 @@ class CodeGenerator:
         )
 
         self.outfile.write(
-            "static void %s_proxy_iface_init (%sIface *iface);\n"
+            "static void %s_proxy_iface_init (%sIface *iface, gpointer iface_data);\n"
             "\n" % (i.name_lower, i.camel_name)
         )
         self.outfile.write("#if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38\n")
@@ -4074,7 +4074,7 @@ class CodeGenerator:
             self.outfile.write("}\n" "\n")
 
         self.outfile.write(
-            "static void %s_skeleton_iface_init (%sIface *iface);\n"
+            "static void %s_skeleton_iface_init (%sIface *iface, gpointer iface_data);\n"
             % (i.name_lower, i.camel_name)
         )
 

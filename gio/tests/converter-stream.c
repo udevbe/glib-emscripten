@@ -47,7 +47,7 @@ GConverter *g_expander_converter_new      (void);
 
 
 
-static void g_expander_converter_iface_init          (GConverterIface *iface);
+static void g_expander_converter_iface_init          (GConverterIface *iface, gpointer iface_data);
 
 struct _GExpanderConverter
 {
@@ -163,7 +163,7 @@ GConverter *g_compressor_converter_new      (void);
 
 
 
-static void g_compressor_converter_iface_init          (GConverterIface *iface);
+static void g_compressor_converter_iface_init          (GConverterIface *iface, gpointer iface_data);
 
 struct _GCompressorConverter
 {
@@ -587,7 +587,7 @@ GConverter *g_leftover_converter_new      (void);
 
 
 
-static void g_leftover_converter_iface_init          (GConverterIface *iface);
+static void g_leftover_converter_iface_init          (GConverterIface *iface, gpointer iface_data);
 
 struct _GLeftoverConverter
 {

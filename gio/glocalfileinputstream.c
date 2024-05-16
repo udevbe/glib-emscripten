@@ -51,7 +51,7 @@ struct _GLocalFileInputStreamPrivate {
 };
 
 #ifdef G_OS_UNIX
-static void       g_file_descriptor_based_iface_init   (GFileDescriptorBasedIface *iface);
+static void       g_file_descriptor_based_iface_init   (GFileDescriptorBasedIface *iface, gpointer iface_data);
 #endif
 
 #define g_local_file_input_stream_get_type _g_local_file_input_stream_get_type

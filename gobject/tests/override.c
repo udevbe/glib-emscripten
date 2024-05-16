@@ -143,7 +143,7 @@ test_a_class_init (TestAClass *class)
 }
 
 static void
-test_a_interface_init (TestIClass *iface)
+test_a_interface_init (TestIClass *iface, gpointer iface_data)
 {
   g_signal_override_class_closure (foo_signal_id,
                                    TEST_TYPE_A,

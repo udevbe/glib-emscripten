@@ -446,7 +446,7 @@ g_dbus_interface_skeleton_set_object (GDBusInterface *interface_,
 }
 
 static void
-dbus_interface_interface_init (GDBusInterfaceIface *iface)
+dbus_interface_interface_init (GDBusInterfaceIface *iface, gpointer iface_data)
 {
   iface->get_info    = _g_dbus_interface_skeleton_get_info;
   iface->get_object  = g_dbus_interface_skeleton_get_object;
