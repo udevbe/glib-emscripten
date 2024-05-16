@@ -170,7 +170,7 @@ g_socket_input_stream_pollable_read_nonblocking (GPollableInputStream  *pollable
 					 NULL, error);
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static int
 g_socket_input_stream_get_fd (GFileDescriptorBased *fd_based)
 {
@@ -198,7 +198,7 @@ g_socket_input_stream_class_init (GSocketInputStreamClass *klass)
 							G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
+#ifdef G_OS_UNIX
 static void
 g_socket_input_stream_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface,
                                                         gpointer                   iface_data)

@@ -84,7 +84,6 @@ struct _GLocalFileOutputStreamPrivate {
 #ifdef G_OS_UNIX
 static void       g_file_descriptor_based_iface_init   (GFileDescriptorBasedIface *iface,
                                                         gpointer                   iface_data);
-#if defined(G_OS_UNIX) && !defined(G_PLATFORM_WASM)
 static void       g_file_descriptor_based_iface_init   (GFileDescriptorBasedIface *iface,
                                                         gpointer                   iface_data);
 #endif
