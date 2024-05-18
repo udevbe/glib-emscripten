@@ -2328,7 +2328,7 @@ type_name##_get_type_once (void) \
                                        sizeof (TypeName##Class), \
                                        (GClassInitFunc)(void (*)(void)) type_name##_class_intern_init, \
                                        sizeof (TypeName), \
-                                       (GInstanceInitFunc)(void (*)(void)) type_name##_init, \
+                                       (GInstanceInitFunc)(void (*)(void)) type_name##_init_adapter, \
                                        (GTypeFlags) flags); \
     { /* custom code follows */
 #define _G_DEFINE_TYPE_EXTENDED_END()	\
