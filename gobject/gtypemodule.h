@@ -207,7 +207,7 @@ type_name##_register_type (GTypeModule *type_module) \
     NULL,   /* class_data */ \
     sizeof (TypeName), \
     0,      /* n_preallocs */ \
-    (GInstanceInitFunc)(void (*)(void)) type_name##_init, \
+    (GInstanceInitFunc)(void (*)(void)) type_name##_init_adapter, \
     NULL    /* value_table */ \
   }; \
   type_name##_type_id = g_type_module_register_type (type_module, \

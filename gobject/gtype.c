@@ -143,8 +143,6 @@ typedef struct _IFaceEntry      IFaceEntry;
 typedef struct _IFaceHolder	IFaceHolder;
 typedef void   (*GInterfaceInitFuncNoData)         (gpointer         g_iface);
 typedef void   (*GInterfaceFinalizeFuncNoData)     (gpointer         g_iface);
-typedef void   (*GClassInitFuncNoData)             (gpointer         g_class);
-typedef void   (*GClassFinalizeFuncNoData)         (gpointer         g_class);
 
 
 /* --- prototypes --- */
@@ -2343,18 +2341,7 @@ type_class_init_Wm (TypeNode   *node,
   G_WRITE_UNLOCK (&type_rw_lock);
 
   if (node->data->class.class_init)
-    {
-      if((gpointer) node->data->class.class_data)
-        {
-          node->data->class.class_init (class, (gpointer) node->data->class.class_data);
-        }
-      else
-        {
-          GClassInitFuncNoData class_init = (GClassInitFuncNoData) node->data->class.class_init;
-          class_init(class);
-        }
-    }
-
+    node->data->class.class_init (class, (gpointer) node->data->class.class_data);
   
   G_WRITE_LOCK (&type_rw_lock);
   
@@ -2434,18 +2421,7 @@ type_data_finalize_class_U (TypeNode  *node,
   g_assert (cdata->class && NODE_REFCOUNT (node) == 0);
   
   if (cdata->class_finalize)
-    {
-      if((gpointer) cdata->class_data)
-        {
-          cdata->class_finalize (class, (gpointer) cdata->class_data);
-        }
-      else
-        {
-          GClassFinalizeFuncNoData class_finalize = (GClassFinalizeFuncNoData) cdata->class_finalize;
-          class_finalize(class);
-        }
-    }
-
+    cdata->class_finalize (class, (gpointer) cdata->class_data);
   
   /* call all base class destruction functions in descending order
    */
