@@ -120,7 +120,7 @@ enum
   PROP_CERT_IP_ADDRESSES,
 };
 
-static void g_test_tls_certificate_initable_iface_init (GInitableIface *iface, gpointer iface_data);
+static void g_test_tls_certificate_initable_iface_init (GInitableIface *iface);
 
 #define g_test_tls_certificate_get_type _g_test_tls_certificate_get_type
 G_DEFINE_TYPE_WITH_CODE (GTestTlsCertificate, g_test_tls_certificate, G_TYPE_TLS_CERTIFICATE,
@@ -322,7 +322,7 @@ enum
   PROP_CONN_AUTHENTICATION_MODE
 };
 
-static void g_test_tls_connection_initable_iface_init (GInitableIface *iface, gpointer iface_data);
+static void g_test_tls_connection_initable_iface_init (GInitableIface *iface);
 
 #define g_test_tls_connection_get_type _g_test_tls_connection_get_type
 G_DEFINE_TYPE_WITH_CODE (GTestTlsConnection, g_test_tls_connection, G_TYPE_TLS_CONNECTION,
@@ -428,8 +428,8 @@ enum
   PROP_DATABASE_ANCHORS = 1,
 };
 
-static void g_test_tls_database_initable_iface_init (GInitableIface *iface, gpointer iface_data);
-static void g_test_tls_file_database_file_database_interface_init (GInitableIface *iface, gpointer iface_data);
+static void g_test_tls_database_initable_iface_init (GInitableIface *iface);
+static void g_test_tls_file_database_file_database_interface_init (GInitableIface *iface);
 
 #define g_test_tls_database_get_type _g_test_tls_database_get_type
 G_DEFINE_TYPE_WITH_CODE (GTestTlsDatabase, g_test_tls_database, G_TYPE_TLS_DATABASE,
@@ -513,12 +513,12 @@ g_test_tls_database_initable_init (GInitable       *initable,
 }
 
 static void
-g_test_tls_file_database_file_database_interface_init (GInitableIface *iface, gpointer iface_data)
+g_test_tls_file_database_file_database_interface_init (GInitableIface *iface)
 {
 }
 
 static void
-g_test_tls_database_initable_iface_init (GInitableIface  *iface, gpointer iface_data)
+g_test_tls_database_initable_iface_init (GInitableIface  *iface)
 {
   iface->init = g_test_tls_database_initable_init;
 }

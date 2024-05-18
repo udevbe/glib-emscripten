@@ -75,7 +75,7 @@ enum
 
 static guint signals[LAST_SIGNAL] = {0};
 
-static void     dbus_interface_interface_init                      (GDBusInterfaceIface    *iface, gpointer iface_data);
+static void     dbus_interface_interface_init                      (GDBusInterfaceIface    *iface);
 
 static void     set_object_path_locked                             (GDBusInterfaceSkeleton *interface_,
                                                                     const gchar            *object_path);
@@ -446,7 +446,7 @@ g_dbus_interface_skeleton_set_object (GDBusInterface *interface_,
 }
 
 static void
-dbus_interface_interface_init (GDBusInterfaceIface *iface, gpointer iface_data)
+dbus_interface_interface_init (GDBusInterfaceIface *iface)
 {
   iface->get_info    = _g_dbus_interface_skeleton_get_info;
   iface->get_object  = g_dbus_interface_skeleton_get_object;

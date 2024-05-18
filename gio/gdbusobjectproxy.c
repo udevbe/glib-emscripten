@@ -57,7 +57,7 @@ enum
   PROP_G_CONNECTION
 };
 
-static void dbus_object_interface_init (GDBusObjectIface *iface, gpointer iface_data);
+static void dbus_object_interface_init (GDBusObjectIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (GDBusObjectProxy, g_dbus_object_proxy, G_TYPE_OBJECT,
                          G_ADD_PRIVATE (GDBusObjectProxy)
@@ -344,7 +344,7 @@ _g_dbus_object_proxy_remove_interface (GDBusObjectProxy *proxy,
 }
 
 static void
-dbus_object_interface_init (GDBusObjectIface *iface, gpointer iface_data)
+dbus_object_interface_init (GDBusObjectIface *iface)
 {
   iface->get_object_path       = g_dbus_object_proxy_get_object_path;
   iface->get_interfaces        = g_dbus_object_proxy_get_interfaces;

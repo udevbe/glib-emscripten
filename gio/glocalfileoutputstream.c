@@ -82,8 +82,7 @@ struct _GLocalFileOutputStreamPrivate {
 };
 
 #ifdef G_OS_UNIX
-static void       g_file_descriptor_based_iface_init   (GFileDescriptorBasedIface *iface,
-                                                        gpointer                   iface_data);
+static void       g_file_descriptor_based_iface_init   (GFileDescriptorBasedIface *iface);
 #endif
 
 #define g_local_file_output_stream_get_type _g_local_file_output_stream_get_type
@@ -181,8 +180,7 @@ g_local_file_output_stream_class_init (GLocalFileOutputStreamClass *klass)
 
 #ifdef G_OS_UNIX
 static void
-g_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface,
-                                    gpointer                   iface_data)
+g_file_descriptor_based_iface_init (GFileDescriptorBasedIface *iface)
 {
   iface->get_fd = g_local_file_output_stream_get_fd;
 }

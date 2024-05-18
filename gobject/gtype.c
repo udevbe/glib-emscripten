@@ -141,6 +141,8 @@ typedef union  _TypeData        TypeData;
 typedef struct _IFaceEntries    IFaceEntries;
 typedef struct _IFaceEntry      IFaceEntry;
 typedef struct _IFaceHolder	IFaceHolder;
+typedef void   (*GInterfaceInitFuncNoData)         (gpointer         g_iface);
+typedef void   (*GInterfaceFinalizeFuncNoData)     (gpointer         g_iface);
 
 
 /* --- prototypes --- */
@@ -2144,7 +2146,19 @@ type_iface_vtable_iface_init_Wm (TypeNode *iface,
     {
       G_WRITE_UNLOCK (&type_rw_lock);
       if (iholder->info->interface_init)
-	iholder->info->interface_init (vtable, iholder->info->interface_data);
+        {
+          g_print("%s\n",type_descriptive_name_I(iholder->instance_type));
+          if (iholder->info->interface_data)
+            {
+              GInterfaceInitFunc interface_init = iholder->info->interface_init;
+              interface_init(vtable, iholder->info->interface_data);
+            }
+          else
+            {
+              GInterfaceInitFuncNoData interface_init = (GInterfaceInitFuncNoData)iholder->info->interface_init;
+              interface_init(vtable);
+            }
+        }
       G_WRITE_LOCK (&type_rw_lock);
     }
   
@@ -2180,7 +2194,18 @@ type_iface_vtable_finalize_Wm (TypeNode       *iface,
     {
       G_WRITE_UNLOCK (&type_rw_lock);
       if (iholder->info->interface_finalize)
-	iholder->info->interface_finalize (vtable, iholder->info->interface_data);
+        {
+          if (iholder->info->interface_data)
+            {
+              GInterfaceFinalizeFunc interface_finalize = iholder->info->interface_finalize;
+              interface_finalize(vtable, iholder->info->interface_data);
+            }
+          else
+            {
+              GInterfaceFinalizeFuncNoData interface_finalize = (GInterfaceFinalizeFuncNoData)iholder->info->interface_finalize;
+              interface_finalize(vtable);
+            }
+        }
       if (iface->data->iface.vtable_finalize_base)
 	iface->data->iface.vtable_finalize_base (vtable);
       G_WRITE_LOCK (&type_rw_lock);

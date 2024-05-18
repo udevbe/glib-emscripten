@@ -41,8 +41,7 @@
  * supported. More may be added in the future.
  */
 
-static void g_emblem_iface_init (GIconIface *iface,
-                                 gpointer    iface_data);
+static void g_emblem_iface_init (GIconIface *iface);
 
 struct _GEmblem
 {
@@ -379,8 +378,7 @@ g_emblem_serialize (GIcon *icon)
 }
 
 static void
-g_emblem_iface_init (GIconIface *iface,
-                     gpointer    iface_data)
+g_emblem_iface_init (GIconIface *iface)
 {
   iface->hash  = g_emblem_hash;
   iface->equal = g_emblem_equal;

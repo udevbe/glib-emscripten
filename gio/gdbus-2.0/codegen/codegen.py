@@ -3094,7 +3094,7 @@ class CodeGenerator:
         )
 
         self.outfile.write(
-            "static void %s_proxy_iface_init (%sIface *iface, gpointer iface_data);\n"
+            "static void %s_proxy_iface_init (%sIface *iface);\n"
             "\n" % (i.name_lower, i.camel_name)
         )
         self.outfile.write("#if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38\n")
@@ -3472,9 +3472,9 @@ class CodeGenerator:
             "%s_proxy_iface_init (%sIface *iface" % (i.name_lower, i.camel_name)
         )
         if len(i.properties) == 0:
-            self.outfile.write(" G_GNUC_UNUSED, gpointer iface_data)\n")
+            self.outfile.write(" G_GNUC_UNUSED)\n")
         else:
-            self.outfile.write(", gpointer iface_data)\n")
+            self.outfile.write(")\n")
         self.outfile.write("{\n")
         for p in i.properties:
             self.outfile.write(
@@ -4074,7 +4074,7 @@ class CodeGenerator:
             self.outfile.write("}\n" "\n")
 
         self.outfile.write(
-            "static void %s_skeleton_iface_init (%sIface *iface, gpointer iface_data);\n"
+            "static void %s_skeleton_iface_init (%sIface *iface);\n"
             % (i.name_lower, i.camel_name)
         )
 
@@ -4453,9 +4453,9 @@ class CodeGenerator:
             "%s_skeleton_iface_init (%sIface *iface" % (i.name_lower, i.camel_name)
         )
         if len(i.signals) == 0 and len(i.properties) == 0:
-            self.outfile.write(" G_GNUC_UNUSED, gpointer iface_data)\n")
+            self.outfile.write(" G_GNUC_UNUSED)\n")
         else:
-            self.outfile.write(", gpointer iface_data)\n")
+            self.outfile.write(")\n")
         self.outfile.write("{\n")
         for s in i.signals:
             self.outfile.write(
@@ -4722,14 +4722,14 @@ class CodeGenerator:
         # class boilerplate
         self.outfile.write(
             "static void\n"
-            "%sobject_proxy__%sobject_iface_init (%sObjectIface *iface G_GNUC_UNUSED, gpointer iface_data)\n"
+            "%sobject_proxy__%sobject_iface_init (%sObjectIface *iface G_GNUC_UNUSED)\n"
             "{\n"
             "}\n"
             "\n" % (self.ns_lower, self.ns_lower, self.namespace)
         )
         self.outfile.write(
             "static void\n"
-            "%sobject_proxy__g_dbus_object_iface_init (GDBusObjectIface *iface, gpointer iface_data)\n"
+            "%sobject_proxy__g_dbus_object_iface_init (GDBusObjectIface *iface)\n"
             "{\n"
             "  iface->interface_added = %sobject_notify;\n"
             "  iface->interface_removed = %sobject_notify;\n"
@@ -4874,7 +4874,7 @@ class CodeGenerator:
         # class boilerplate
         self.outfile.write(
             "static void\n"
-            "%sobject_skeleton__%sobject_iface_init (%sObjectIface *iface G_GNUC_UNUSED, gpointer iface_data)\n"
+            "%sobject_skeleton__%sobject_iface_init (%sObjectIface *iface G_GNUC_UNUSED)\n"
             "{\n"
             "}\n"
             "\n" % (self.ns_lower, self.ns_lower, self.namespace)
@@ -4882,7 +4882,7 @@ class CodeGenerator:
         self.outfile.write("\n")
         self.outfile.write(
             "static void\n"
-            "%sobject_skeleton__g_dbus_object_iface_init (GDBusObjectIface *iface, gpointer iface_data)\n"
+            "%sobject_skeleton__g_dbus_object_iface_init (GDBusObjectIface *iface)\n"
             "{\n"
             "  iface->interface_added = %sobject_notify;\n"
             "  iface->interface_removed = %sobject_notify;\n"

@@ -49,8 +49,7 @@ enum {
  * compresses data using zlib.
  */
 
-static void g_zlib_compressor_iface_init          (GConverterIface *iface,
-                                                   gpointer         iface_data);
+static void g_zlib_compressor_iface_init          (GConverterIface *iface);
 
 struct _GZlibCompressor
 {
@@ -435,8 +434,7 @@ g_zlib_compressor_convert (GConverter *converter,
 }
 
 static void
-g_zlib_compressor_iface_init (GConverterIface *iface,
-                              gpointer         iface_data)
+g_zlib_compressor_iface_init (GConverterIface *iface)
 {
   iface->convert = g_zlib_compressor_convert;
   iface->reset = g_zlib_compressor_reset;

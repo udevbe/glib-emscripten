@@ -45,10 +45,8 @@ enum {
  * [struct@GLib.IConv].
  */
 
-static void g_charset_converter_iface_init          (GConverterIface *iface,
-                                                     gpointer         iface_data);
-static void g_charset_converter_initable_iface_init (GInitableIface  *iface,
-                                                     gpointer         iface_data);
+static void g_charset_converter_iface_init          (GConverterIface *iface);
+static void g_charset_converter_initable_iface_init (GInitableIface  *iface);
 
 struct _GCharsetConverter
 {
@@ -435,8 +433,7 @@ g_charset_converter_get_num_fallbacks (GCharsetConverter *converter)
 }
 
 static void
-g_charset_converter_iface_init (GConverterIface *iface,
-                                gpointer         iface_data)
+g_charset_converter_iface_init (GConverterIface *iface)
 {
   iface->convert = g_charset_converter_convert;
   iface->reset = g_charset_converter_reset;
@@ -481,8 +478,7 @@ g_charset_converter_initable_init (GInitable     *initable,
 }
 
 static void
-g_charset_converter_initable_iface_init (GInitableIface *iface,
-                                         gpointer        iface_data)
+g_charset_converter_initable_iface_init (GInitableIface *iface)
 {
   iface->init = g_charset_converter_initable_init;
 }
