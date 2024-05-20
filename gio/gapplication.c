@@ -951,19 +951,22 @@ g_application_real_after_emit (GApplication *application,
 }
 
 static void
-g_application_real_startup (GApplication *application)
+g_application_real_startup (GApplication *application,
+                            gpointer                  user_data)
 {
   application->priv->did_startup = TRUE;
 }
 
 static void
-g_application_real_shutdown (GApplication *application)
+g_application_real_shutdown (GApplication *application,
+                             gpointer                  user_data)
 {
   application->priv->did_shutdown = TRUE;
 }
 
 static void
-g_application_real_activate (GApplication *application)
+g_application_real_activate (GApplication *application,
+                             gpointer                  user_data)
 {
   if (!g_signal_has_handler_pending (application,
                                      g_application_signals[SIGNAL_ACTIVATE],
