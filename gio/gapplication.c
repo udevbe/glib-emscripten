@@ -1031,7 +1031,8 @@ g_application_real_command_line (GApplication            *application,
 
 static gint
 g_application_real_handle_local_options (GApplication *application,
-                                         GVariantDict *options)
+                                         GVariantDict *options,
+                                         gpointer user_data)
 {
   return -1;
 }

@@ -116,7 +116,8 @@ struct _GApplicationClass
                                                      GDBusConnection           *connection,
                                                      const gchar               *object_path);
   gint                      (* handle_local_options)(GApplication              *application,
-                                                     GVariantDict              *options);
+                                                     GVariantDict              *options,
+                                                     gpointer                  user_data);
   gboolean                  (* name_lost)           (GApplication              *application);
 
   /*< private >*/
