@@ -58,9 +58,11 @@ struct _GApplicationClass
 
   /*< public >*/
   /* signals */
-  void                      (* startup)             (GApplication              *application);
+  void                      (* startup)             (GApplication              *application,
+                                                     gpointer                  user_data);
 
-  void                      (* activate)            (GApplication              *application);
+  void                      (* activate)            (GApplication              *application,
+                                                     gpointer                  user_data);
 
   void                      (* open)                (GApplication              *application,
                                                      GFile                    **files,
@@ -106,7 +108,8 @@ struct _GApplicationClass
                                                      GVariantBuilder           *builder);
   void                      (* quit_mainloop)       (GApplication              *application);
   void                      (* run_mainloop)        (GApplication              *application);
-  void                      (* shutdown)            (GApplication              *application);
+  void                      (* shutdown)            (GApplication              *application,
+                                                     gpointer                  user_data);
 
   gboolean                  (* dbus_register)       (GApplication              *application,
                                                      GDBusConnection           *connection,
