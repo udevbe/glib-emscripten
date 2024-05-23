@@ -775,6 +775,12 @@ if host_system != 'aix'
 endif
 
 foreach f : functions
+  # emscripten falsely reports pipe2 support at compile time but fails at runtime
+  if host_system == 'emscripten' and f == 'pipe2'
+    set_variable('have_func_' + f, false)
+    continue
+  endif
+
   if cc.has_function(f)
     define = 'HAVE_' + f.underscorify().to_upper()
     glib_conf.set(define, 1)
