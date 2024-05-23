@@ -951,22 +951,33 @@ g_application_real_after_emit (GApplication *application,
 }
 
 static void
-g_application_real_startup (GApplication *application,
-                            gpointer                  user_data)
+g_application_real_startup (GApplication *application)
 {
   application->priv->did_startup = TRUE;
 }
 
 static void
-g_application_real_shutdown (GApplication *application,
-                             gpointer                  user_data)
+g_application_startup_adapter (GApplication *application,
+                                      gpointer user_data)
+{
+  G_APPLICATION_GET_CLASS (application)->startup(application);
+}
+
+static void
+g_application_real_shutdown (GApplication *application)
 {
   application->priv->did_shutdown = TRUE;
 }
 
 static void
-g_application_real_activate (GApplication *application,
-                             gpointer                  user_data)
+g_application_shutdown_adapter (GApplication *application,
+                                       gpointer user_data)
+{
+  G_APPLICATION_GET_CLASS (application)->shutdown(application);
+}
+
+static void
+g_application_real_activate (GApplication *application)
 {
   if (!g_signal_has_handler_pending (application,
                                      g_application_signals[SIGNAL_ACTIVATE],
@@ -983,6 +994,13 @@ g_application_real_activate (GApplication *application,
                  "to the 'activate' signal.  It should do one of these.");
       warned = TRUE;
     }
+}
+
+static void
+g_application_activate_adapter (GApplication *application,
+                                       gpointer user_data)
+{
+  G_APPLICATION_GET_CLASS (application)->activate(application);
 }
 
 static void
@@ -1034,10 +1052,17 @@ g_application_real_command_line (GApplication            *application,
 
 static gint
 g_application_real_handle_local_options (GApplication *application,
-                                         GVariantDict *options,
-                                         gpointer user_data)
+                                         GVariantDict *options)
 {
   return -1;
+}
+
+static gint
+g_application_handle_local_options_adapter (GApplication *application,
+                                                   GVariantDict *options,
+                                                   gpointer user_data)
+{
+  G_APPLICATION_GET_CLASS (application)->handle_local_options(application, options);
 }
 
 static GVariant *
@@ -1644,9 +1669,9 @@ g_application_class_init (GApplicationClass *class)
    * after registration. See g_application_register().
    */
   g_application_signals[SIGNAL_STARTUP] =
-    g_signal_new (I_("startup"), G_TYPE_APPLICATION, G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (GApplicationClass, startup),
-                  NULL, NULL, NULL, G_TYPE_NONE, 0);
+      g_signal_new_class_handler (I_ ("startup"), G_TYPE_APPLICATION, G_SIGNAL_RUN_FIRST,
+                    G_CALLBACK (g_application_startup_adapter),
+                    NULL, NULL, NULL, G_TYPE_NONE, 0);
 
   /**
    * GApplication::shutdown:
@@ -1656,9 +1681,9 @@ g_application_class_init (GApplicationClass *class)
    * immediately after the main loop terminates.
    */
   g_application_signals[SIGNAL_SHUTDOWN] =
-    g_signal_new (I_("shutdown"), G_TYPE_APPLICATION, G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (GApplicationClass, shutdown),
-                  NULL, NULL, NULL, G_TYPE_NONE, 0);
+      g_signal_new_class_handler (I_ ("shutdown"), G_TYPE_APPLICATION, G_SIGNAL_RUN_LAST,
+                    G_CALLBACK (g_application_shutdown_adapter),
+                    NULL, NULL, NULL, G_TYPE_NONE, 0);
 
   /**
    * GApplication::activate:
@@ -1668,9 +1693,9 @@ g_application_class_init (GApplicationClass *class)
    * activation occurs. See g_application_activate().
    */
   g_application_signals[SIGNAL_ACTIVATE] =
-    g_signal_new (I_("activate"), G_TYPE_APPLICATION, G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (GApplicationClass, activate),
-                  NULL, NULL, NULL, G_TYPE_NONE, 0);
+      g_signal_new_class_handler (I_ ("activate"), G_TYPE_APPLICATION, G_SIGNAL_RUN_LAST,
+                    G_CALLBACK (g_application_activate_adapter),
+                    NULL, NULL, NULL, G_TYPE_NONE, 0);
 
 
   /**
@@ -1771,11 +1796,11 @@ g_application_class_init (GApplicationClass *class)
    * Since: 2.40
    **/
   g_application_signals[SIGNAL_HANDLE_LOCAL_OPTIONS] =
-    g_signal_new (I_("handle-local-options"), G_TYPE_APPLICATION, G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (GApplicationClass, handle_local_options),
-                  g_application_handle_local_options_accumulator, NULL,
-                  _g_cclosure_marshal_INT__BOXED,
-                  G_TYPE_INT, 1, G_TYPE_VARIANT_DICT);
+      g_signal_new_class_handler (I_ ("handle-local-options"), G_TYPE_APPLICATION, G_SIGNAL_RUN_LAST,
+                                  G_CALLBACK (g_application_handle_local_options_adapter),
+                    g_application_handle_local_options_accumulator, NULL,
+                    _g_cclosure_marshal_INT__BOXED,
+                    G_TYPE_INT, 1, G_TYPE_VARIANT_DICT);
   g_signal_set_va_marshaller (g_application_signals[SIGNAL_HANDLE_LOCAL_OPTIONS],
                               G_TYPE_FROM_CLASS (class),
                               _g_cclosure_marshal_INT__BOXEDv);

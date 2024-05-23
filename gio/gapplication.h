@@ -58,11 +58,9 @@ struct _GApplicationClass
 
   /*< public >*/
   /* signals */
-  void                      (* startup)             (GApplication              *application,
-                                                     gpointer                  user_data);
+  void                      (* startup)             (GApplication              *application);
 
-  void                      (* activate)            (GApplication              *application,
-                                                     gpointer                  user_data);
+  void                      (* activate)            (GApplication              *application);
 
   void                      (* open)                (GApplication              *application,
                                                      GFile                    **files,
@@ -108,8 +106,7 @@ struct _GApplicationClass
                                                      GVariantBuilder           *builder);
   void                      (* quit_mainloop)       (GApplication              *application);
   void                      (* run_mainloop)        (GApplication              *application);
-  void                      (* shutdown)            (GApplication              *application,
-                                                     gpointer                  user_data);
+  void                      (* shutdown)            (GApplication              *application);
 
   gboolean                  (* dbus_register)       (GApplication              *application,
                                                      GDBusConnection           *connection,
@@ -119,8 +116,7 @@ struct _GApplicationClass
                                                      GDBusConnection           *connection,
                                                      const gchar               *object_path);
   gint                      (* handle_local_options)(GApplication              *application,
-                                                     GVariantDict              *options,
-                                                     gpointer                  user_data);
+                                                     GVariantDict              *options);
   gboolean                  (* name_lost)           (GApplication              *application);
 
   /*< private >*/
