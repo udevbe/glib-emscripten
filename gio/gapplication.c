@@ -1062,7 +1062,7 @@ g_application_handle_local_options_adapter (GApplication *application,
                                                    GVariantDict *options,
                                                    gpointer user_data)
 {
-  G_APPLICATION_GET_CLASS (application)->handle_local_options(application, options);
+  return G_APPLICATION_GET_CLASS (application)->handle_local_options(application, options);
 }
 
 static GVariant *

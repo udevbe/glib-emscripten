@@ -1028,14 +1028,18 @@ g_list_insert_sorted_real (GList    *list,
       new_list->data = data;
       return new_list;
     }
-  
-  cmp = ((GCompareDataFunc) func) (data, tmp_list->data, user_data);
+
+  cmp = user_data
+            ? ((GCompareDataFunc) func) (data, tmp_list->data, user_data)
+            : ((GCompareFunc) func) (data, tmp_list->data);
 
   while ((tmp_list->next) && (cmp > 0))
     {
       tmp_list = tmp_list->next;
 
-      cmp = ((GCompareDataFunc) func) (data, tmp_list->data, user_data);
+      cmp = user_data
+                ? ((GCompareDataFunc) func) (data, tmp_list->data, user_data)
+                : ((GCompareFunc) func) (data, tmp_list->data);
     }
 
   new_list = _g_list_alloc0 ();
