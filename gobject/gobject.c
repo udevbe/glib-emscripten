@@ -974,6 +974,17 @@ g_object_base_class_finalize (GObjectClass *class)
 }
 
 static void
+g_object_notify_adapter (GObject	*object,
+                         GParamSpec	*pspec,
+                         gpointer       user_data)
+{
+  if(G_OBJECT_GET_CLASS (object)->notify)
+    {
+      G_OBJECT_GET_CLASS (object)->notify(object, pspec);
+    }
+}
+
+static void
 g_object_do_class_init (GObjectClass *class,
                         gpointer      class_data)
 {
@@ -1026,14 +1037,14 @@ g_object_do_class_init (GObjectClass *class,
    * detail strings for the notify signal.
    */
   gobject_signals[NOTIFY] =
-    g_signal_new (g_intern_static_string ("notify"),
-		  G_TYPE_FROM_CLASS (class),
-		  G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE | G_SIGNAL_DETAILED | G_SIGNAL_NO_HOOKS | G_SIGNAL_ACTION,
-		  G_STRUCT_OFFSET (GObjectClass, notify),
-		  NULL, NULL,
-		  NULL,
-		  G_TYPE_NONE,
-		  1, G_TYPE_PARAM);
+      g_signal_new_class_handler (g_intern_static_string ("notify"),
+      		  G_TYPE_FROM_CLASS (class),
+      		  G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE | G_SIGNAL_DETAILED | G_SIGNAL_NO_HOOKS | G_SIGNAL_ACTION,
+      		  G_CALLBACK(g_object_notify_adapter),
+      		  NULL, NULL,
+      		  NULL,
+      		  G_TYPE_NONE,
+      		  1, G_TYPE_PARAM);
 
   /* Install a check function that we'll use to verify that classes that
    * implement an interface implement all properties for that interface
