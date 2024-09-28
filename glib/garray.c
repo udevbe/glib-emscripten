@@ -903,6 +903,15 @@ g_array_remove_range (GArray *farray,
   return farray;
 }
 
+static gint
+g_compare_func_adapter (gconstpointer  a,
+                        gconstpointer  b,
+                        gpointer       user_data)
+{
+  GCompareFunc  compare_func = (GCompareFunc) user_data;
+  return compare_func (a, b);
+}
+
 /**
  * g_array_sort:
  * @array: a #GArray
@@ -928,8 +937,8 @@ g_array_sort (GArray       *farray,
     g_qsort_with_data (array->data,
                        array->len,
                        array->elt_size,
-                       (GCompareDataFunc)compare_func,
-                       NULL);
+                       g_compare_func_adapter,
+                       compare_func);
 }
 
 /**
