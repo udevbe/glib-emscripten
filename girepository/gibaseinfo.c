@@ -129,7 +129,8 @@ gi_base_info_finalize (GIBaseInfo *self)
 }
 
 static void
-gi_base_info_class_init (GIBaseInfoClass *klass)
+gi_base_info_class_init (GIBaseInfoClass *klass,
+                         gpointer         class_data)
 {
   klass->info_type = GI_INFO_TYPE_INVALID;
   klass->finalize = gi_base_info_finalize;

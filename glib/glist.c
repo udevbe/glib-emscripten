@@ -133,6 +133,14 @@ g_list_free_1 (GList *list)
   _g_list_free1 (list);
 }
 
+static void
+g_destroy_notify_adapter(gpointer       data,
+                         gpointer       user_data)
+{
+  GDestroyNotify free_func = (GDestroyNotify) user_data;
+  free_func(data);
+}
+
 /**
  * g_list_free_full:
  * @list: the first link of a #GList
@@ -159,7 +167,7 @@ void
 g_list_free_full (GList          *list,
                   GDestroyNotify  free_func)
 {
-  g_list_foreach (list, (GFunc) free_func, NULL);
+  g_list_foreach (list, g_destroy_notify_adapter, free_func);
   g_list_free (list);
 }
 
