@@ -120,7 +120,7 @@ g_slist_free_1 (GSList *list)
   _g_slist_free1 (list);
 }
 
-void
+static void
 g_slist_free_full_destroy_notify_adapter (gpointer       data,
                                           gpointer       user_data)
 {
