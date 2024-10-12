@@ -228,6 +228,51 @@ g_action_group_real_query_action (GActionGroup        *action_group,
 }
 
 static void
+g_action_group_action_added_adapter (GActionGroup  *action_group,
+                                     const gchar   *action_name,
+                                     gpointer       user_data)
+{
+  if(G_ACTION_GROUP_GET_IFACE (action_group)->action_added)
+    {
+      G_ACTION_GROUP_GET_IFACE (action_group)->action_added (action_group, action_name);
+    }
+}
+
+static void
+g_action_group_action_removed_adapter (GActionGroup  *action_group,
+                                       const gchar   *action_name,
+                                       gpointer       user_data)
+{
+  if(G_ACTION_GROUP_GET_IFACE (action_group)->action_removed)
+    {
+      G_ACTION_GROUP_GET_IFACE (action_group)->action_removed (action_group, action_name);
+    }
+}
+
+static void
+g_action_group_action_enabled_changed_adapter (GActionGroup  *action_group,
+                                               const gchar   *action_name,
+                                               gboolean       enabled,
+                                               gpointer       user_data)
+{
+  if(G_ACTION_GROUP_GET_IFACE (action_group)->action_enabled_changed)
+    {
+      G_ACTION_GROUP_GET_IFACE (action_group)->action_enabled_changed (action_group, action_name, enabled);
+    }
+}
+static void
+g_action_group_action_state_changed_adapter (GActionGroup   *action_group,
+                                             const gchar    *action_name,
+                                             GVariant       *state,
+                                             gpointer       user_data)
+{
+  if(G_ACTION_GROUP_GET_IFACE (action_group)->action_state_changed)
+    {
+      G_ACTION_GROUP_GET_IFACE (action_group)->action_state_changed (action_group, action_name, state);
+    }
+}
+
+static void
 g_action_group_default_init (GActionGroupInterface *iface)
 {
   iface->has_action = g_action_group_real_has_action;
@@ -250,14 +295,14 @@ g_action_group_default_init (GActionGroupInterface *iface)
    * Since: 2.28
    **/
   g_action_group_signals[SIGNAL_ACTION_ADDED] =
-    g_signal_new (I_("action-added"),
-                  G_TYPE_ACTION_GROUP,
-                  G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
-                  G_STRUCT_OFFSET (GActionGroupInterface, action_added),
-                  NULL, NULL,
-                  NULL,
-                  G_TYPE_NONE, 1,
-                  G_TYPE_STRING);
+    g_signal_new_class_handler (I_("action-added"),
+                                G_TYPE_ACTION_GROUP,
+                                G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
+                                G_CALLBACK (g_action_group_action_added_adapter),
+                                NULL, NULL,
+                                NULL,
+                                G_TYPE_NONE, 1,
+                                G_TYPE_STRING);
 
   /**
    * GActionGroup::action-removed:
@@ -271,14 +316,14 @@ g_action_group_default_init (GActionGroupInterface *iface)
    * Since: 2.28
    **/
   g_action_group_signals[SIGNAL_ACTION_REMOVED] =
-    g_signal_new (I_("action-removed"),
-                  G_TYPE_ACTION_GROUP,
-                  G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
-                  G_STRUCT_OFFSET (GActionGroupInterface, action_removed),
-                  NULL, NULL,
-                  NULL,
-                  G_TYPE_NONE, 1,
-                  G_TYPE_STRING);
+    g_signal_new_class_handler (I_("action-removed"),
+                                G_TYPE_ACTION_GROUP,
+                                G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
+                                G_CALLBACK (g_action_group_action_removed_adapter),
+                                NULL, NULL,
+                                NULL,
+                                G_TYPE_NONE, 1,
+                                G_TYPE_STRING);
 
 
   /**
@@ -292,14 +337,13 @@ g_action_group_default_init (GActionGroupInterface *iface)
    * Since: 2.28
    **/
   g_action_group_signals[SIGNAL_ACTION_ENABLED_CHANGED] =
-    g_signal_new (I_("action-enabled-changed"),
-                  G_TYPE_ACTION_GROUP,
-                  G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
-                  G_STRUCT_OFFSET (GActionGroupInterface,
-                                   action_enabled_changed),
-                  NULL, NULL,
-                  _g_cclosure_marshal_VOID__STRING_BOOLEAN,
-                  G_TYPE_NONE, 2,
+    g_signal_new_class_handler (I_("action-enabled-changed"),
+                                G_TYPE_ACTION_GROUP,
+                                G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
+                                G_CALLBACK (g_action_group_action_enabled_changed_adapter),
+                                NULL, NULL,
+                                _g_cclosure_marshal_VOID__STRING_BOOLEAN,
+                                G_TYPE_NONE, 2,
                   G_TYPE_STRING,
                   G_TYPE_BOOLEAN);
   g_signal_set_va_marshaller (g_action_group_signals[SIGNAL_ACTION_ENABLED_CHANGED],
@@ -317,18 +361,17 @@ g_action_group_default_init (GActionGroupInterface *iface)
    * Since: 2.28
    **/
   g_action_group_signals[SIGNAL_ACTION_STATE_CHANGED] =
-    g_signal_new (I_("action-state-changed"),
-                  G_TYPE_ACTION_GROUP,
-                  G_SIGNAL_RUN_LAST |
-                  G_SIGNAL_DETAILED |
-                  G_SIGNAL_MUST_COLLECT,
-                  G_STRUCT_OFFSET (GActionGroupInterface,
-                                   action_state_changed),
-                  NULL, NULL,
-                  _g_cclosure_marshal_VOID__STRING_VARIANT,
-                  G_TYPE_NONE, 2,
-                  G_TYPE_STRING,
-                  G_TYPE_VARIANT);
+    g_signal_new_class_handler (I_("action-state-changed"),
+                                G_TYPE_ACTION_GROUP,
+                                G_SIGNAL_RUN_LAST |
+                                G_SIGNAL_DETAILED |
+                                G_SIGNAL_MUST_COLLECT,
+                                G_CALLBACK (g_action_group_action_state_changed_adapter),
+                                NULL, NULL,
+                                _g_cclosure_marshal_VOID__STRING_VARIANT,
+                                G_TYPE_NONE, 2,
+                                G_TYPE_STRING,
+                                G_TYPE_VARIANT);
   g_signal_set_va_marshaller (g_action_group_signals[SIGNAL_ACTION_STATE_CHANGED],
                               G_TYPE_FROM_INTERFACE (iface),
                               _g_cclosure_marshal_VOID__STRING_VARIANTv);

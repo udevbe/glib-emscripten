@@ -1498,6 +1498,41 @@ g_application_finalize (GObject *object)
 }
 
 static void
+g_action_group_action_added_adapter (GActionGroup *action_group,
+                                     const gchar  *action_name,
+                                     gpointer      user_data)
+{
+  g_action_group_action_added (action_group, action_name);
+}
+
+static void
+g_action_group_action_enabled_changed_adapter (GActionGroup *action_group,
+                                               const gchar  *action_name,
+                                               gboolean      enabled,
+                                               gpointer      user_data)
+{
+  g_action_group_action_enabled_changed (action_group, action_name, enabled);
+}
+
+static void
+g_action_group_action_state_changed_adapter (GActionGroup *action_group,
+                                             const gchar  *action_name,
+                                             GVariant     *state,
+                                             gpointer      user_data)
+{
+  g_action_group_action_state_changed (action_group, action_name, state);
+}
+
+static void
+g_action_group_action_removed_adapter(GActionGroup *action_group,
+                                       const gchar  *action_name,
+                                       gpointer      user_data)
+{
+  g_action_group_action_removed (action_group, action_name);
+}
+
+
+static void
 g_application_init (GApplication *application)
 {
   application->priv = g_application_get_instance_private (application);
@@ -1508,13 +1543,13 @@ g_application_init (GApplication *application)
    * we dispose, the action group will die, disconnecting all signals.
    */
   g_signal_connect_swapped (application->priv->actions, "action-added",
-                            G_CALLBACK (g_action_group_action_added), application);
+                            G_CALLBACK (g_action_group_action_added_adapter), application);
   g_signal_connect_swapped (application->priv->actions, "action-enabled-changed",
-                            G_CALLBACK (g_action_group_action_enabled_changed), application);
+                            G_CALLBACK (g_action_group_action_enabled_changed_adapter), application);
   g_signal_connect_swapped (application->priv->actions, "action-state-changed",
-                            G_CALLBACK (g_action_group_action_state_changed), application);
+                            G_CALLBACK (g_action_group_action_state_changed_adapter), application);
   g_signal_connect_swapped (application->priv->actions, "action-removed",
-                            G_CALLBACK (g_action_group_action_removed), application);
+                            G_CALLBACK (g_action_group_action_removed_adapter), application);
 }
 
 static gboolean
