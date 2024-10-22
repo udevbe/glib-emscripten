@@ -5242,6 +5242,20 @@ destroy_closure_array (gpointer data)
   g_free (carray);
 }
 
+static void
+g_object_ref_adapter (gpointer _object,
+                      GClosure	*closure)
+{
+  g_object_ref (_object);
+}
+
+static void
+g_object_unref_adapter (gpointer _object,
+                        GClosure	*closure)
+{
+  g_object_unref (_object);
+}
+
 /**
  * g_object_watch_closure:
  * @object: #GObject restricting lifetime of @closure
@@ -5272,8 +5286,8 @@ g_object_watch_closure (GObject  *object,
   
   g_closure_add_invalidate_notifier (closure, object, object_remove_closure);
   g_closure_add_marshal_guards (closure,
-				object, (GClosureNotify) g_object_ref,
-				object, (GClosureNotify) g_object_unref);
+				object, (GClosureNotify) g_object_ref_adapter,
+				object, (GClosureNotify) g_object_unref_adapter);
   object_bit_lock (object, OPTIONAL_BIT_LOCK_CLOSURE_ARRAY);
   carray = g_datalist_id_remove_no_notify (&object->qdata, quark_closure_array);
   if (!carray)
