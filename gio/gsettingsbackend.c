@@ -343,7 +343,7 @@ g_settings_backend_dispatch_signal (GSettingsBackend    *backend,
 
       if (closure->context)
         g_main_context_invoke (closure->context,
-                               g_settings_backend_invoke_closure_adapter,
+                               (GSourceFunc) g_settings_backend_invoke_closure_adapter,
                                closure);
       else
         g_settings_backend_invoke_closure (closure);
