@@ -282,6 +282,17 @@ g_settings_backend_invoke_closure (gpointer user_data)
   return FALSE;
 }
 
+static gboolean
+g_settings_backend_invoke_closure_adapter (gpointer           user_data,
+                                           GSettingsBackend  *backend,
+                                           const gchar       *name,
+                                           gpointer           origin_tag,
+                                           gchar            **names)
+{
+  return g_settings_backend_invoke_closure (user_data);
+}
+
+
 static void
 g_settings_backend_dispatch_signal (GSettingsBackend    *backend,
                                     gsize                function_offset,
@@ -332,7 +343,7 @@ g_settings_backend_dispatch_signal (GSettingsBackend    *backend,
 
       if (closure->context)
         g_main_context_invoke (closure->context,
-                               g_settings_backend_invoke_closure,
+                               g_settings_backend_invoke_closure_adapter,
                                closure);
       else
         g_settings_backend_invoke_closure (closure);
