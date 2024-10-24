@@ -643,12 +643,52 @@ g_settings_get_property (GObject    *object,
     }
 }
 
+static void
+settings_backend_changed_adapter (GObject             *target,
+                                  GSettingsBackend    *backend,
+                                  const gchar         *key,
+                                  gpointer             origin_tag,
+                                  const gchar * const *names)
+{
+  settings_backend_changed (target, backend, key, origin_tag);
+}
+
+static void
+settings_backend_path_changed_adapter (GObject             *target,
+                                       GSettingsBackend    *backend,
+                                       const gchar         *path,
+                                       gpointer             origin_tag,
+                                       const gchar * const *names)
+{
+  settings_backend_path_changed (target, backend, path, origin_tag);
+}
+
+static void
+settings_backend_writable_changed_adapter (GObject             *target,
+                                           GSettingsBackend    *backend,
+                                           const gchar         *key,
+                                           gpointer             origin_tag,
+                                           const gchar * const *names)
+{
+  settings_backend_writable_changed (target, backend, key);
+}
+
+static void
+settings_backend_path_writable_changed_adapter (GObject             *target,
+                                                GSettingsBackend    *backend,
+                                                const gchar         *path,
+                                                gpointer             origin_tag,
+                                                const gchar * const *names)
+{
+  settings_backend_path_writable_changed (target, backend, path);
+}
+
 static const GSettingsListenerVTable listener_vtable = {
-  settings_backend_changed,
-  settings_backend_path_changed,
+  settings_backend_changed_adapter,
+  settings_backend_path_changed_adapter,
   settings_backend_keys_changed,
-  settings_backend_writable_changed,
-  settings_backend_path_writable_changed
+  settings_backend_writable_changed_adapter,
+  settings_backend_path_writable_changed_adapter
 };
 
 static void

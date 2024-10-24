@@ -31,11 +31,13 @@ typedef struct
   void (* changed)               (GObject             *target,
                                   GSettingsBackend    *backend,
                                   const gchar         *key,
-                                  gpointer             origin_tag);
+                                  gpointer             origin_tag,
+                                  const gchar * const *names);
   void (* path_changed)          (GObject             *target,
                                   GSettingsBackend    *backend,
                                   const gchar         *path,
-                                  gpointer             origin_tag);
+                                  gpointer             origin_tag,
+                                  const gchar * const *names);
   void (* keys_changed)          (GObject             *target,
                                   GSettingsBackend    *backend,
                                   const gchar         *prefix,
@@ -43,11 +45,17 @@ typedef struct
                                   const gchar * const *names);
   void (* writable_changed)      (GObject             *target,
                                   GSettingsBackend    *backend,
-                                  const gchar         *key);
+                                  const gchar         *key,
+                                  gpointer             origin_tag,
+                                  const gchar * const *names);
   void (* path_writable_changed) (GObject             *target,
                                   GSettingsBackend    *backend,
-                                  const gchar         *path);
+                                  const gchar         *path,
+                                  gpointer             origin_tag,
+                                  const gchar * const *names);
 } GSettingsListenerVTable;
+
+
 
 void                    g_settings_backend_watch                        (GSettingsBackend               *backend,
                                                                          const GSettingsListenerVTable  *vtable,

@@ -490,17 +490,57 @@ g_delayed_settings_backend_disown (gpointer  data,
   g_mutex_unlock (&delayed->priv->lock);
 }
 
+static void
+delayed_backend_changed_adapter (GObject             *target,
+                                 GSettingsBackend    *backend,
+                                 const gchar         *key,
+                                 gpointer             origin_tag,
+                                 const gchar * const *names)
+{
+  delayed_backend_changed (target, backend, key, origin_tag);
+}
+
+static void
+delayed_backend_path_changed_adapter (GObject             *target,
+                                      GSettingsBackend    *backend,
+                                      const gchar         *path,
+                                      gpointer             origin_tag,
+                                      const gchar * const *names)
+{
+  delayed_backend_path_changed (target, backend, path, origin_tag);
+}
+
+static void
+delayed_backend_writable_changed_adapter (GObject             *target,
+                                          GSettingsBackend    *backend,
+                                          const gchar         *key,
+                                          gpointer             origin_tag,
+                                          const gchar * const *names)
+{
+  delayed_backend_writable_changed (target, backend, key);
+}
+
+static void
+delayed_backend_path_writable_changed_adapter (GObject             *target,
+                                               GSettingsBackend    *backend,
+                                               const gchar         *path,
+                                               gpointer             origin_tag,
+                                               const gchar * const *names)
+{
+  delayed_backend_path_writable_changed (target, backend, path);
+}
+
 GDelayedSettingsBackend *
 g_delayed_settings_backend_new (GSettingsBackend *backend,
                                 gpointer          owner,
                                 GMainContext     *owner_context)
 {
   static GSettingsListenerVTable vtable = {
-    delayed_backend_changed,
-    delayed_backend_path_changed,
+    delayed_backend_changed_adapter,
+    delayed_backend_path_changed_adapter,
     delayed_backend_keys_changed,
-    delayed_backend_writable_changed,
-    delayed_backend_path_writable_changed
+    delayed_backend_writable_changed_adapter,
+    delayed_backend_path_writable_changed_adapter
   };
   GDelayedSettingsBackend *delayed;
 
