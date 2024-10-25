@@ -745,6 +745,51 @@ g_settings_init (GSettings *settings)
 }
 
 static void
+g_settings_changed_adapter (GSettings    *settings,
+                            const gchar  *key,
+                            gpointer      user_data)
+{
+  if (G_SETTINGS_GET_CLASS (settings)->changed)
+    {
+      G_SETTINGS_GET_CLASS (settings)->changed (settings, key)
+    }
+}
+
+static gboolean
+g_settings_change_event_adapter (GSettings    *settings,
+                                 const GQuark *keys,
+                                 gint          n_keys,
+                                 gpointer      user_data)
+{
+  if (G_SETTINGS_GET_CLASS (settings)->change_event)
+    {
+      return G_SETTINGS_GET_CLASS (settings)->change_event (settings, keys, n_keys)
+    }
+}
+
+static void
+g_settings_writable_changed_adapter (GSettings    *settings,
+                                     const gchar  *key,
+                                     gpointer      user_data)
+{
+  if (G_SETTINGS_GET_CLASS (settings)->writable_changed)
+    {
+      G_SETTINGS_GET_CLASS (settings)->writable_changed (settings, key)
+    }
+}
+
+static gboolean
+g_settings_writable_change_event_adapter (GSettings    *settings,
+                                          GQuark        key,
+                                          gpointer      user_data)
+{
+  if (G_SETTINGS_GET_CLASS (settings)->writable_change_event)
+    {
+      return G_SETTINGS_GET_CLASS (settings)->writable_change_event (settings, key)
+    }
+}
+
+static void
 g_settings_class_init (GSettingsClass *class)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (class);
@@ -774,11 +819,11 @@ g_settings_class_init (GSettingsClass *class)
    * least once while a signal handler was already connected for @key.
    */
   g_settings_signals[SIGNAL_CHANGED] =
-    g_signal_new (I_("changed"), G_TYPE_SETTINGS,
-                  G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
-                  G_STRUCT_OFFSET (GSettingsClass, changed),
-                  NULL, NULL, NULL, G_TYPE_NONE,
-                  1, G_TYPE_STRING | G_SIGNAL_TYPE_STATIC_SCOPE);
+    g_signal_new_class_handler (I_("changed"), G_TYPE_SETTINGS,
+                                G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
+                                G_CALLBACK (g_settings_changed_adapter),
+                                NULL, NULL, NULL, G_TYPE_NONE,
+                                1, G_TYPE_STRING | G_SIGNAL_TYPE_STATIC_SCOPE);
 
   /**
    * GSettings::change-event:
@@ -807,12 +852,12 @@ g_settings_class_init (GSettingsClass *class)
    *          event. FALSE to propagate the event further.
    */
   g_settings_signals[SIGNAL_CHANGE_EVENT] =
-    g_signal_new (I_("change-event"), G_TYPE_SETTINGS,
-                  G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (GSettingsClass, change_event),
-                  g_signal_accumulator_true_handled, NULL,
-                  _g_cclosure_marshal_BOOLEAN__POINTER_INT,
-                  G_TYPE_BOOLEAN, 2, G_TYPE_POINTER, G_TYPE_INT);
+    g_signal_new_class_handler (I_("change-event"), G_TYPE_SETTINGS,
+                                G_SIGNAL_RUN_LAST,
+                                G_CALLBACK (g_settings_change_event_adapter),
+                                g_signal_accumulator_true_handled, NULL,
+                                _g_cclosure_marshal_BOOLEAN__POINTER_INT,
+                                G_TYPE_BOOLEAN, 2, G_TYPE_POINTER, G_TYPE_INT);
   g_signal_set_va_marshaller (g_settings_signals[SIGNAL_CHANGE_EVENT],
                               G_TYPE_FROM_CLASS (class),
                               _g_cclosure_marshal_BOOLEAN__POINTER_INTv);
@@ -831,11 +876,11 @@ g_settings_class_init (GSettingsClass *class)
    * callbacks when the writability of "x" changes.
    */
   g_settings_signals[SIGNAL_WRITABLE_CHANGED] =
-    g_signal_new (I_("writable-changed"), G_TYPE_SETTINGS,
-                  G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
-                  G_STRUCT_OFFSET (GSettingsClass, writable_changed),
-                  NULL, NULL, NULL, G_TYPE_NONE,
-                  1, G_TYPE_STRING | G_SIGNAL_TYPE_STATIC_SCOPE);
+    g_signal_new_class_handler (I_("writable-changed"), G_TYPE_SETTINGS,
+                                G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
+                                G_CALLBACK (g_settings_writable_changed_adapter),
+                                NULL, NULL, NULL, G_TYPE_NONE,
+                                1, G_TYPE_STRING | G_SIGNAL_TYPE_STATIC_SCOPE);
 
   /**
    * GSettings::writable-change-event:
@@ -865,12 +910,12 @@ g_settings_class_init (GSettingsClass *class)
    *          event. FALSE to propagate the event further.
    */
   g_settings_signals[SIGNAL_WRITABLE_CHANGE_EVENT] =
-    g_signal_new (I_("writable-change-event"), G_TYPE_SETTINGS,
-                  G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (GSettingsClass, writable_change_event),
-                  g_signal_accumulator_true_handled, NULL,
-                  _g_cclosure_marshal_BOOLEAN__UINT,
-                  G_TYPE_BOOLEAN, 1, G_TYPE_UINT);
+    g_signal_new_class_handler (I_("writable-change-event"), G_TYPE_SETTINGS,
+                                G_SIGNAL_RUN_LAST,
+                                G_CALLBACK (g_settings_writable_change_event_adapter),
+                                g_signal_accumulator_true_handled, NULL,
+                                _g_cclosure_marshal_BOOLEAN__UINT,
+                                G_TYPE_BOOLEAN, 1, G_TYPE_UINT);
   g_signal_set_va_marshaller (g_settings_signals[SIGNAL_WRITABLE_CHANGE_EVENT],
                               G_TYPE_FROM_CLASS (class),
                               _g_cclosure_marshal_BOOLEAN__UINTv);
