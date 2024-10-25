@@ -751,7 +751,7 @@ g_settings_changed_adapter (GSettings    *settings,
 {
   if (G_SETTINGS_GET_CLASS (settings)->changed)
     {
-      G_SETTINGS_GET_CLASS (settings)->changed (settings, key)
+      G_SETTINGS_GET_CLASS (settings)->changed (settings, key);
     }
 }
 
@@ -763,7 +763,7 @@ g_settings_change_event_adapter (GSettings    *settings,
 {
   if (G_SETTINGS_GET_CLASS (settings)->change_event)
     {
-      return G_SETTINGS_GET_CLASS (settings)->change_event (settings, keys, n_keys)
+      return G_SETTINGS_GET_CLASS (settings)->change_event (settings, keys, n_keys);
     }
 }
 
@@ -774,7 +774,7 @@ g_settings_writable_changed_adapter (GSettings    *settings,
 {
   if (G_SETTINGS_GET_CLASS (settings)->writable_changed)
     {
-      G_SETTINGS_GET_CLASS (settings)->writable_changed (settings, key)
+      G_SETTINGS_GET_CLASS (settings)->writable_changed (settings, key);
     }
 }
 
@@ -785,7 +785,7 @@ g_settings_writable_change_event_adapter (GSettings    *settings,
 {
   if (G_SETTINGS_GET_CLASS (settings)->writable_change_event)
     {
-      return G_SETTINGS_GET_CLASS (settings)->writable_change_event (settings, key)
+      return G_SETTINGS_GET_CLASS (settings)->writable_change_event (settings, key);
     }
 }
 
