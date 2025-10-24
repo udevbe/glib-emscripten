@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+
+require('./glib-compile-resources.js')

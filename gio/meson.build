@@ -165,7 +165,7 @@ if host_system == 'android'
                           mc_req_src.imr_interface.s_addr = 0;
                           return 0;
                         }''',
-                        name : 'ip_mreq_source.imr_interface has s_addr member')
+                     name : 'ip_mreq_source.imr_interface has s_addr member')
     glib_conf.set('BROKEN_IP_MREQ_SOURCE_STRUCT', 1)
   endif
 endif
@@ -238,31 +238,31 @@ subdir('gdbus-2.0/codegen')
 
 # Generate xdp-dbus.{c,h}
 xdp_dbus_generated = custom_target('xdp-dbus',
-    input : ['org.freedesktop.portal.Documents.xml',
-             'org.freedesktop.portal.OpenURI.xml',
-             'org.freedesktop.portal.ProxyResolver.xml',
-             'org.freedesktop.portal.Trash.xml'],
-    output : ['xdp-dbus.h', 'xdp-dbus.c'],
-    depend_files : gdbus_codegen_built_files,
-    depends : gdbus_codegen_built_targets,
-    command : [python, gdbus_codegen,
-               '--interface-prefix', 'org.freedesktop.portal.',
-               '--output-directory', '@OUTDIR@',
-               '--generate-c-code', 'xdp-dbus',
-               '--c-namespace', 'GXdp',
-               '@INPUT@'])
+                                   input : ['org.freedesktop.portal.Documents.xml',
+                                            'org.freedesktop.portal.OpenURI.xml',
+                                            'org.freedesktop.portal.ProxyResolver.xml',
+                                            'org.freedesktop.portal.Trash.xml'],
+                                   output : ['xdp-dbus.h', 'xdp-dbus.c'],
+                                   depend_files : gdbus_codegen_built_files,
+                                   depends : gdbus_codegen_built_targets,
+                                   command : [python, gdbus_codegen,
+                                              '--interface-prefix', 'org.freedesktop.portal.',
+                                              '--output-directory', '@OUTDIR@',
+                                              '--generate-c-code', 'xdp-dbus',
+                                              '--c-namespace', 'GXdp',
+                                              '@INPUT@'])
 
 # Generate gdbus-generated.{c,h}
 gdbus_daemon_generated = custom_target('gdbus-daemon-generated',
-    input : ['dbus-daemon.xml'],
-    output : ['gdbus-daemon-generated.h', 'gdbus-daemon-generated.c'],
-    depend_files : gdbus_codegen_built_files,
-    depends : gdbus_codegen_built_targets,
-    command : [python, gdbus_codegen,
-               '--interface-prefix', 'org.',
-               '--output-directory', '@OUTDIR@',
-               '--generate-c-code', 'gdbus-daemon-generated',
-               '--c-namespace', '_G', '@INPUT@'])
+                                       input : ['dbus-daemon.xml'],
+                                       output : ['gdbus-daemon-generated.h', 'gdbus-daemon-generated.c'],
+                                       depend_files : gdbus_codegen_built_files,
+                                       depends : gdbus_codegen_built_targets,
+                                       command : [python, gdbus_codegen,
+                                                  '--interface-prefix', 'org.',
+                                                  '--output-directory', '@OUTDIR@',
+                                                  '--generate-c-code', 'gdbus-daemon-generated',
+                                                  '--c-namespace', '_G', '@INPUT@'])
 
 settings_headers = files(
   'gsettingsbackend.h',
@@ -370,18 +370,18 @@ if host_system != 'windows'
   )
 
   portal_sources = [files(
-      'gdocumentportal.c',
-      'gopenuriportal.c',
-      'gmemorymonitorportal.c',
-      'gnetworkmonitorportal.c',
-      'gpowerprofilemonitorportal.c',
-      'gproxyresolverportal.c',
-      'gtrashportal.c',
-      'gportalsupport.c',
-      'gportalnotificationbackend.c',
-      'gsandbox.c',
-    ),
-    xdp_dbus_generated
+                      'gdocumentportal.c',
+                      'gopenuriportal.c',
+                      'gmemorymonitorportal.c',
+                      'gnetworkmonitorportal.c',
+                      'gpowerprofilemonitorportal.c',
+                      'gproxyresolverportal.c',
+                      'gtrashportal.c',
+                      'gportalsupport.c',
+                      'gportalnotificationbackend.c',
+                      'gsandbox.c',
+                    ),
+                    xdp_dbus_generated
   ]
 
   gio_unix_include_headers = files(
@@ -757,25 +757,25 @@ install_headers(gio_headers, install_dir : gio_includedir)
 # We can't use gnome.mkenums() because the GNOME module looks for glib-mkenums
 # in PATH, which means you can't bootstrap glib with its own glib-mkenums.
 gioenumtypes_h = custom_target('gioenumtypes_h',
-  output : 'gioenumtypes.h',
-  capture : true,
-  input : gio_headers,
-  install : true,
-  install_dir : gio_includedir,
-  # FIXME: Not needed with Meson >= 0.64.0
-  install_tag: 'devel',
-  command : [python, glib_mkenums,
-             '--template', files('gioenumtypes.h.template'),
-             '@INPUT@', gnetworking_h])
+                               output : 'gioenumtypes.h',
+                               capture : true,
+                               input : gio_headers,
+                               install : true,
+                               install_dir : gio_includedir,
+                               # FIXME: Not needed with Meson >= 0.64.0
+                               install_tag: 'devel',
+                               command : [python, glib_mkenums,
+                                          '--template', files('gioenumtypes.h.template'),
+                                          '@INPUT@', gnetworking_h])
 
 gioenumtypes_c = custom_target('gioenumtypes_c',
-  output : 'gioenumtypes.c',
-  capture : true,
-  input : gio_headers,
-  depends : [gioenumtypes_h],
-  command : [python, glib_mkenums,
-             '--template', files('gioenumtypes.c.template'),
-             '@INPUT@', gnetworking_h])
+                               output : 'gioenumtypes.c',
+                               capture : true,
+                               input : gio_headers,
+                               depends : [gioenumtypes_h],
+                               command : [python, glib_mkenums,
+                                          '--template', files('gioenumtypes.c.template'),
+                                          '@INPUT@', gnetworking_h])
 
 gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_h, gio_visibility_h])
 
@@ -809,14 +809,14 @@ if have_bash
   endif
 
   install_data([
-      'completion/gapplication',
-      'completion/gdbus',
-      'completion/gio',
-      'completion/gsettings',
-      'completion/gresource'
-    ],
-    install_dir: bash_comp_inst_dir,
-    install_tag: 'bin',
+                 'completion/gapplication',
+                 'completion/gdbus',
+                 'completion/gio',
+                 'completion/gsettings',
+                 'completion/gresource'
+               ],
+               install_dir: bash_comp_inst_dir,
+               install_tag: 'bin',
   )
 endif
 
@@ -829,24 +829,24 @@ else
 endif
 
 libgio = library('gio-2.0',
-  gioenumtypes_h, gioenumtypes_c, gnetworking_h, gio_sources,
-  gio_dtrace_hdr, gio_dtrace_obj,
-  version : library_version,
-  soversion : soversion,
-  darwin_versions : darwin_versions,
-  install : true,
-  include_directories : [configinc, gioinc],
-  #  '$(gio_win32_res_ldflag)',
-  link_with: internal_deps,
-  dependencies : [libz_dep, libdl_dep, libmount_dep, libglib_dep,
-                  libgobject_dep, libgmodule_dep, selinux_dep, xattr_dep,
-                  platform_deps, network_libs, libsysprof_capture_dep,
-                  gioenumtypes_dep, gvdb_dep],
-  c_args : [gio_c_args, gio_c_args_internal],
-  objc_args : [gio_c_args, gio_c_args_internal],
-  gnu_symbol_visibility : 'hidden',
-  # intl.lib is not compatible with SAFESEH
-  link_args : [noseh_link_args, glib_link_flags],
+                 gioenumtypes_h, gioenumtypes_c, gnetworking_h, gio_sources,
+                 gio_dtrace_hdr, gio_dtrace_obj,
+                 version : library_version,
+                 soversion : soversion,
+                 darwin_versions : darwin_versions,
+                 install : true,
+                 include_directories : [configinc, gioinc],
+                 #  '$(gio_win32_res_ldflag)',
+                 link_with: internal_deps,
+                 dependencies : [libz_dep, libdl_dep, libmount_dep, libglib_dep,
+                                 libgobject_dep, libgmodule_dep, selinux_dep, xattr_dep,
+                                 platform_deps, network_libs, libsysprof_capture_dep,
+                                 gioenumtypes_dep, gvdb_dep],
+                 c_args : [gio_c_args, gio_c_args_internal],
+                 objc_args : [gio_c_args, gio_c_args_internal],
+                 gnu_symbol_visibility : 'hidden',
+                 # intl.lib is not compatible with SAFESEH
+                 link_args : [noseh_link_args, glib_link_flags],
 )
 
 if get_option('gio_module_dir') != ''
@@ -859,56 +859,56 @@ schemas_subdir = join_paths('glib-2.0', 'schemas')
 dtds_subdir = join_paths('glib-2.0', 'dtds')
 
 libgio_dep = declare_dependency(link_with : libgio,
-  dependencies : [libgmodule_dep, libgobject_dep, gioenumtypes_dep],
-  include_directories : [gioinc],
-  variables : [
-    'schemasdir=' + join_paths(glib_datadir, schemas_subdir),
-    'giomoduledir=' + glib_giomodulesdir,
-    'dtdsdir=' + join_paths(glib_datadir, dtds_subdir)
-  ],
+                                dependencies : [libgmodule_dep, libgobject_dep, gioenumtypes_dep],
+                                include_directories : [gioinc],
+                                variables : [
+                                  'schemasdir=' + join_paths(glib_datadir, schemas_subdir),
+                                  'giomoduledir=' + glib_giomodulesdir,
+                                  'dtdsdir=' + join_paths(glib_datadir, dtds_subdir)
+                                ],
 )
 
 pkg.generate(libgio,
-  requires : ['glib-2.0', 'gobject-2.0'],
-  variables : [
-    'schemasdir=' + '${datadir}' / schemas_subdir,
-    'dtdsdir=' + '${datadir}' / dtds_subdir,
-    'giomoduledir=' + pkgconfig_giomodulesdir,
-    'gio=' + '${bindir}' / 'gio',
-    'gio_querymodules=' + pkgconfig_multiarch_bindir / 'gio-querymodules',
-    'glib_compile_schemas=' + find_program('glib-compile-schemas', native: true, required: false).full_path(),
-    'glib_compile_resources=' + find_program('glib-compile-resources', native: true, required: false).full_path(),
-    'gdbus=' + '${bindir}' /'gdbus',
-    'gdbus_codegen=' + '${bindir}' / 'gdbus-codegen',
-    'gresource=' + '${bindir}' / 'gresource',
-    'gsettings=' + '${bindir}' / 'gsettings',
-  ],
-  version : glib_version,
-  install_dir : glib_pkgconfigreldir,
-  filebase : 'gio-2.0',
-  name : 'GIO',
-  description : 'glib I/O library',
+             requires : ['glib-2.0', 'gobject-2.0'],
+             variables : [
+               'schemasdir=' + '${datadir}' / schemas_subdir,
+               'dtdsdir=' + '${datadir}' / dtds_subdir,
+               'giomoduledir=' + pkgconfig_giomodulesdir,
+               'gio=' + '${bindir}' / 'gio',
+               'gio_querymodules=' + pkgconfig_multiarch_bindir / 'gio-querymodules',
+               'glib_compile_schemas=' + pkgconfig_multiarch_bindir / 'glib-compile-schemas',
+               'glib_compile_resources=' + '${bindir}' / 'glib-compile-resources',
+               'gdbus=' + '${bindir}' /'gdbus',
+               'gdbus_codegen=' + '${bindir}' / 'gdbus-codegen',
+               'gresource=' + '${bindir}' / 'gresource',
+               'gsettings=' + '${bindir}' / 'gsettings',
+             ],
+             version : glib_version,
+             install_dir : glib_pkgconfigreldir,
+             filebase : 'gio-2.0',
+             name : 'GIO',
+             description : 'glib I/O library',
 )
 meson.override_dependency('gio-2.0', libgio_dep)
 
 if host_system == 'windows'
   pkg.generate(requires : ['gobject-2.0', 'gmodule-no-export-2.0', 'gio-2.0'],
-    subdirs : ['gio-win32-2.0'],
-    version : glib_version,
-    install_dir : glib_pkgconfigreldir,
-    filebase : 'gio-windows-2.0',
-    name : 'GIO Windows specific APIs',
-    description : 'Windows specific headers for glib I/O library',
+               subdirs : ['gio-win32-2.0'],
+               version : glib_version,
+               install_dir : glib_pkgconfigreldir,
+               filebase : 'gio-windows-2.0',
+               name : 'GIO Windows specific APIs',
+               description : 'Windows specific headers for glib I/O library',
   )
   meson.override_dependency('gio-windows-2.0', libgio_dep)
 else
   pkg.generate(requires : ['gobject-2.0', 'gio-2.0'],
-    subdirs : ['gio-unix-2.0'],
-    version : glib_version,
-    install_dir : glib_pkgconfigreldir,
-    filebase : 'gio-unix-2.0',
-    name : 'GIO unix specific APIs',
-    description : 'unix specific headers for glib I/O library',
+               subdirs : ['gio-unix-2.0'],
+               version : glib_version,
+               install_dir : glib_pkgconfigreldir,
+               filebase : 'gio-unix-2.0',
+               name : 'GIO unix specific APIs',
+               description : 'unix specific headers for glib I/O library',
   )
   meson.override_dependency('gio-unix-2.0', libgio_dep)
 endif
@@ -946,21 +946,66 @@ else
 endif
 
 gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
-    input : ['data-to-c.py', files('../glib/gconstructor.h')],
-    output : ['gconstructor_as_data.h'],
-    command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
+                                       input : ['data-to-c.py', files('../glib/gconstructor.h')],
+                                       output : ['gconstructor_as_data.h'],
+                                       command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
+
+
+glib_compile_schemas = executable('glib-compile-schemas',
+                                  ['glib-compile-schemas.c'],
+                                  install : true,
+                                  install_dir : multiarch_bindir,
+                                  install_tag : 'bin',
+                                  # intl.lib is not compatible with SAFESEH
+                                  link_args : [noseh_link_args,'-sNODERAWFS=1'],
+                                  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep, gvdb_dep])
+
+glib_compile_resources = executable('glib-compile-resources',
+                                    [gconstructor_as_data_h, 'glib-compile-resources.c'],
+                                    install : true,
+                                    install_tag : 'bin-devel',
+                                    c_args : gio_c_args,
+                                    # intl.lib is not compatible with SAFESEH
+                                    link_args : [noseh_link_args,'-sNODERAWFS=1'],
+                                    dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep, gvdb_dep])
+install_data('gresource.dtd',
+             install_dir: get_option('datadir') / dtds_subdir,
+             install_tag: 'devel',
+)
+
+install_data('glib-compile-resources',
+             install_tag : 'bin-devel',
+             install_dir : multiarch_bindir,
+             install_mode: 'rwxr-xr-x'
+)
+
+install_data('glib-compile-schemas',
+             install_dir : multiarch_bindir,
+             install_tag : 'bin',
+             install_mode: 'rwxr-xr-x'
+)
 
 if enable_systemtap
   gio_stp = configure_file(input : 'gio.stp.in',
-    output : '@0@.stp'.format(libgio.full_path().split('/').get(-1)),
-    configuration : stp_cdata,
-    install_dir : tapset_install_dir,
-    install_tag : 'systemtap',
+                           output : '@0@.stp'.format(libgio.full_path().split('/').get(-1)),
+                           configuration : stp_cdata,
+                           install_dir : tapset_install_dir,
+                           install_tag : 'systemtap',
   )
 endif
 
+if multiarch_bindir != get_option('bindir')
+  foreach exe : ['gio-querymodules', 'glib-compile-schemas']
+    install_symlink(
+      exe,
+      install_dir : get_option('bindir'),
+      pointing_to : get_option('prefix') / multiarch_bindir / exe,
+    )
+  endforeach
+endif
+
 if build_tests
-    subdir('tests')
+  subdir('tests')
 endif
 
 # The following is an example for building internal marshallers that are used
